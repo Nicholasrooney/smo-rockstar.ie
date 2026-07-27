@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMO — Order Confirmed</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="star">★</span>SMO</a>
+  <ul class="nav-links">
+    <li><a href="index.html#shows">Shows</a></li>
+    <li><a href="shop.html" class="btn-nav">Shop</a></li>
+  </ul>
+</nav>
+
+<div style="text-align:center;padding:120px 40px 140px;max-width:560px;margin:0 auto">
+  <div style="font-size:80px;margin-bottom:24px">★</div>
+  <h2 id="success-title" style="font-size:clamp(40px,8vw,80px);margin-bottom:16px">Order Confirmed!</h2>
+  <p id="success-msg" style="color:var(--light-grey);margin:0 auto 32px;line-height:1.8">
+    Thanks for supporting SMO. Your shirt is on its way — keep an eye on your email
+    for the Stripe receipt and shipping updates.
+  </p>
+  <a href="index.html" class="btn btn-outline">Back to Home</a>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-bottom">
+    <span>© 2025 SMO. All rights reserved.</span>
+    <span>smo-rockstar.ie</span>
+  </div>
+</footer>
+
+<script>
+  /* Stripe sends the customer back here with ?session_id=cs_...
+     We hand that to order-confirm.php, which verifies the payment
+     with Stripe server-side, logs it and emails the band.
+     The cart is only cleared once payment is confirmed as PAID. */
+  (function () {
+    var sid = new URLSearchParams(location.search).get('session_id');
+    if (!sid) return;
+
+    fetch('order-confirm.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sid })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.ok) {
+          localStorage.removeItem('smo_cart');
+        } else if (d && d.payment_status && d.payment_status !== 'paid') {
+          document.getElementById('success-title').textContent = 'Payment Not Completed';
+          document.getElementById('success-msg').textContent =
+            'It looks like the payment didn’t go through. Nothing has been charged — ' +
+            'your cart is still saved if you want to try again.';
+        }
+      })
+      .catch(function () { /* confirmation is best-effort; Stripe still has the order */ });
+  })();
+</script>
+
+</body>
+</html>

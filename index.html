@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMO — Dublin</title>
+  <meta name="description" content="SMO — Dublin alt-rock band. Live shows, music, merch.">
+  <meta property="og:title" content="SMO">
+  <meta property="og:description" content="Dublin alt-rock. Catch us live.">
+  <meta property="og:image" content="assets/images/smo_sunglasses.jpg">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="star">★</span>SMO</a>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="#shows">Shows</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="shop.html" class="btn-nav">Shop</a></li>
+    <li>
+      <a href="shop.html" style="position:relative;display:flex;align-items:flex-start">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count">0</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Dublin, Ireland</div>
+    <h1>SMO<span class="outline">.</span></h1>
+    <p class="hero-sub">Alt-rock & indie from the heart of Dublin. Loud nights, honest songs.</p>
+    <div class="hero-actions">
+      <a href="#shows" class="btn btn-primary">Upcoming Shows</a>
+      <a href="#music" class="btn btn-outline">Listen Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── TICKER ── -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Lost My Way</span><span class="sep">★</span>
+    <span>War</span><span class="sep">★</span>
+    <span>Love Me Too</span><span class="sep">★</span>
+    <span>Celebrate You</span><span class="sep">★</span>
+    <span>Listen</span><span class="sep">★</span>
+    <span>Grand Social Dublin</span><span class="sep">★</span>
+    <span>Whelans Dublin</span><span class="sep">★</span>
+    <!-- duplicate for seamless loop -->
+    <span>Lost My Way</span><span class="sep">★</span>
+    <span>War</span><span class="sep">★</span>
+    <span>Love Me Too</span><span class="sep">★</span>
+    <span>Celebrate You</span><span class="sep">★</span>
+    <span>Listen</span><span class="sep">★</span>
+    <span>Grand Social Dublin</span><span class="sep">★</span>
+    <span>Whelans Dublin</span><span class="sep">★</span>
+  </div>
+</div>
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-images">
+      <img src="assets/images/smo_sunglasses.jpg" alt="SMO performing live" class="about-img-main">
+      <img src="assets/images/band_stage.jpg" alt="SMO band on stage" class="about-img-accent">
+    </div>
+    <div class="about-text">
+      <span class="section-label">The Band</span>
+      <h2>Raw Sound.<br>Real Energy.</h2>
+      <p>SMO is Sam and the band — a full-tilt alt-rock outfit out of Dublin. Equal parts swagger and sincerity, they've been turning heads at venues across the capital with a sound that hits before you've even settled in.</p>
+      <p>From late nights at the Grand Social to packed floors at Whelans, the SMO live show is built to be felt. New releases dropping constantly — the story's only getting started.</p>
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="num">3K+</div>
+          <div class="lbl">Monthly Listeners</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">5+</div>
+          <div class="lbl">Releases</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">DUB</div>
+          <div class="lbl">Based in Dublin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SHOWS ── -->
+<section id="shows">
+  <div class="section-header">
+    <span class="section-label">Live</span>
+    <h2>Upcoming<br>Shows</h2>
+  </div>
+  <div class="shows-list" id="shows-list">
+    <div class="no-shows" style="color:var(--grey);padding:40px 0;text-align:center;font-size:13px;letter-spacing:0.1em">Loading shows...</div>
+  </div>
+</section>
+
+<!-- ── MUSIC ── -->
+<section id="music">
+  <div class="section-header">
+    <span class="section-label">Music</span>
+    <h2>Latest<br>Releases</h2>
+  </div>
+  <div class="releases-grid">
+
+    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+      <div class="release-artwork">
+        <img src="assets/images/smo_sunglasses.jpg" alt="Lost My Way">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="release-info">
+        <h3>Lost My Way</h3>
+        <div class="meta">Single · 2025</div>
+        <div class="release-links">
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+        </div>
+      </div>
+    </a>
+
+    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+      <div class="release-artwork">
+        <img src="assets/images/smo_bw.jpg" alt="War">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="release-info">
+        <h3>War</h3>
+        <div class="meta">Single · 2025</div>
+        <div class="release-links">
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+        </div>
+      </div>
+    </a>
+
+    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+      <div class="release-artwork">
+        <img src="assets/images/gig_whelans.jpg" alt="Love Me Too">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="release-info">
+        <h3>Love Me Too</h3>
+        <div class="meta">Single · 2025</div>
+        <div class="release-links">
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+        </div>
+      </div>
+    </a>
+
+    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+      <div class="release-artwork">
+        <img src="assets/images/keyboard.jpg" alt="Celebrate You">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="release-info">
+        <h3>Celebrate You</h3>
+        <div class="meta">Single · 2025</div>
+        <div class="release-links">
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <div style="text-align:center;margin-top:48px">
+    <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" class="btn btn-outline">All Music on Spotify ↗</a>
+  </div>
+</section>
+
+<!-- ── GALLERY ── -->
+<section style="padding-top:0">
+  <div class="gallery-grid">
+    <img src="assets/images/smo_portrait.jpg" alt="SMO" class="wide">
+    <img src="assets/images/guitarist.jpg" alt="Guitarist">
+    <img src="assets/images/drummer.jpg" alt="Drummer">
+    <img src="assets/images/keyboard.jpg" alt="Keyboard">
+    <img src="assets/images/smo_bw.jpg" alt="SMO performing">
+    <img src="assets/images/band_stage.jpg" alt="Band on stage" class="wide">
+    <img src="assets/images/gig_whelans.jpg" alt="Whelans gig">
+    <img src="assets/images/smo_logo_live.jpg" alt="SMO logo live">
+  </div>
+</section>
+
+<!-- ── SHOP PREVIEW ── -->
+<section class="shop-preview">
+  <div class="shop-preview-grid">
+    <div class="shop-preview-img">
+      <img src="assets/images/tshirt_hero.jpg" alt="SMO T-Shirt">
+    </div>
+    <div class="shop-preview-text">
+      <span class="section-label">Merch</span>
+      <h2>Wear<br>The Star</h2>
+      <p>The official SMO t-shirt. White heavyweight cotton with the signature ★SMO logo. Sizes S–XXL.</p>
+      <div class="price-tag">€30</div>
+      <a href="shop.html" class="btn btn-primary">Shop Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="index.html" class="footer-logo"><span>★</span>SMO</a>
+      <div class="footer-tagline">Dublin, Ireland</div>
+    </div>
+    <div class="footer-nav">
+      <h4>Links</h4>
+      <ul>
+        <li><a href="#shows">Shows</a></li>
+        <li><a href="#music">Music</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-tagline" style="text-align:right;margin-bottom:16px">Follow SMO</div>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/smo_rockstar" target="_blank" class="social-link" title="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" class="social-link" title="Spotify">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5-1 4-1 4 1 4 1"/><path d="M7 10s2-1.5 5-1.5 5 1.5 5 1.5"/><path d="M9 16s1.5-.5 3-.5 3 .5 3 .5"/></svg>
+        </a>
+        <a href="https://www.tiktok.com/@smo_rockstar" target="_blank" class="social-link" title="TikTok">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.29 6.29 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.2 8.2 0 004.79 1.53V6.79a4.83 4.83 0 01-1.02-.1z"/></svg>
+        </a>
+        <a href="https://www.youtube.com/@smo_rockstar" target="_blank" class="social-link" title="YouTube">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" stroke="none" fill="currentColor"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SMO. All rights reserved.</span>
+    <span>smo.ie</span>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

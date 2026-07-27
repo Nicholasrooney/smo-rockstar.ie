@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMO — Admin</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
+  <style>
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="star">★</span>SMO</a>
+  <ul class="nav-links">
+    <li><a href="index.html">← Back to Site</a></li>
+  </ul>
+</nav>
+
+<!-- ── LOGIN SECTION ── -->
+<div id="login-section" class="admin-login" style="padding-top:100px">
+  <div class="admin-login-box">
+    <div class="logo"><span>★</span>SMO</div>
+    <p>Admin Portal · Shows Management</p>
+    <button id="google-login-btn" class="google-btn">
+      <svg width="20" height="20" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <p style="margin-top:20px;font-size:11px;color:var(--grey)">Access restricted to authorised admin only.</p>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="admin-panel" class="hidden" style="padding-top:90px">
+  <div class="admin-panel">
+
+    <div class="admin-header">
+      <h1>Shows<br>Management</h1>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+        <div class="admin-user">
+          <img id="user-avatar" src="" alt="" width="36" height="36">
+          <span id="user-name"></span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button id="new-show-btn" class="btn btn-primary">+ New Show</button>
+          <button id="logout-btn" class="btn btn-outline btn-sm">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shows Table -->
+    <div style="overflow-x:auto">
+      <table class="shows-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Show Name</th>
+            <th>Venue</th>
+            <th>Price</th>
+            <th>Tickets</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="shows-body">
+          <tr><td colspan="6" style="color:var(--grey);text-align:center;padding:40px">Authenticating...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:32px;padding:20px 24px;background:var(--card-bg);border:1px solid var(--border);font-size:12px;color:var(--grey);line-height:1.8">
+      <strong style="color:var(--white);display:block;margin-bottom:6px">💡 How it works</strong>
+      Shows added here will appear live on the <a href="index.html#shows" style="color:var(--red)">homepage</a> immediately.
+      Past shows are hidden automatically. Set price to <strong>0</strong> for free events.
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW / EDIT SHOW MODAL ── -->
+<div id="show-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h2 id="modal-title">New Show</h2>
+    <form id="show-form">
+      <div class="form-group">
+        <label for="f-name">Show / Gig Name *</label>
+        <input type="text" id="f-name" placeholder="e.g. SMO at Grand Social" required>
+      </div>
+      <div class="form-group">
+        <label for="f-venue">Venue & Location *</label>
+        <input type="text" id="f-venue" placeholder="e.g. Grand Social, Dublin" required>
+      </div>
+      <div class="form-group">
+        <label for="f-date">Date & Time *</label>
+        <input type="datetime-local" id="f-date" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-price">Ticket Price (€)</label>
+          <input type="number" id="f-price" placeholder="0 = Free" min="0" step="0.50">
+        </div>
+        <div class="form-group">
+          <label for="f-tickets">Ticket Link (URL)</label>
+          <input type="url" id="f-tickets" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="cancel-modal" class="btn btn-outline">Cancel</button>
+        <button type="submit" id="save-show-btn" class="btn btn-primary">Save Show</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer style="margin-top:auto">
+  <div class="footer-bottom">
+    <span>© 2025 SMO Admin Portal</span>
+    <a href="index.html" style="color:var(--grey);text-decoration:none">smo.ie</a>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/admin.js"></script>
+</body>
+</html>

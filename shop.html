@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMO — Shop</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="star">★</span>SMO</a>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html#shows">Shows</a></li>
+    <li><a href="index.html#music">Music</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="shop.html" class="btn-nav">Shop</a></li>
+    <li>
+      <a href="shop.html" style="position:relative;display:flex;align-items:flex-start">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count">0</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<!-- ── PAGE HERO ── -->
+<div class="page-hero">
+  <span class="section-label">Official Merch</span>
+  <h1>The Shop</h1>
+</div>
+
+<!-- ── SHOP GRID ── -->
+<div class="shop-grid">
+
+  <!-- Product: SMO T-Shirt White -->
+  <div class="product-card">
+    <div class="product-card-img">
+      <!-- Swappable gallery -->
+      <img src="assets/images/tshirt_hero.jpg" alt="SMO T-Shirt White" id="tshirt-main-img">
+    </div>
+    <div class="product-card-body">
+      <h3>★ SMO T-Shirt</h3>
+      <p style="color:var(--grey);font-size:12px;margin-bottom:12px">Classic white heavyweight cotton tee with the signature ★SMO star logo. Screen printed. Pre-washed.</p>
+      <div class="product-price">€30</div>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px">Select Size</div>
+      <div class="size-selector">
+        <button class="size-btn">S</button>
+        <button class="size-btn">M</button>
+        <button class="size-btn">L</button>
+        <button class="size-btn">XL</button>
+        <button class="size-btn">XXL</button>
+      </div>
+      <button
+        class="btn btn-primary"
+        style="width:100%;justify-content:center;margin-bottom:12px"
+        data-add-to-cart
+        data-product-id="smo-tshirt-white"
+        data-product-name="★ SMO T-Shirt"
+        data-product-price="30"
+        data-product-image="assets/images/tshirt_hero.jpg"
+      >Add to Cart</button>
+    </div>
+  </div>
+
+  <!-- Alt view cards -->
+  <div class="product-card" style="background:transparent;border:1px solid var(--border)">
+    <div style="padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%">
+      <div style="font-size:64px;margin-bottom:16px;line-height:1">★</div>
+      <h3 style="font-size:28px;margin-bottom:12px">More Coming<br>Soon</h3>
+      <p style="color:var(--grey);font-size:12px;line-height:1.8">Hoodies, caps and more drops planned. Follow SMO on Instagram to be first to know.</p>
+      <a href="https://www.instagram.com/smo_rockstar" target="_blank" class="btn btn-outline" style="margin-top:24px;font-size:11px">Follow @smo_rockstar</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PRODUCT PHOTOS STRIP ── -->
+<div style="padding:0 60px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+  <img src="assets/images/tshirt_hero.jpg" alt="SMO Tshirt front" style="width:100%;display:block;cursor:pointer" onclick="document.getElementById('tshirt-main-img').src=this.src">
+  <img src="assets/images/tshirt_smile.jpg" alt="SMO Tshirt worn" style="width:100%;display:block;cursor:pointer" onclick="document.getElementById('tshirt-main-img').src=this.src">
+  <img src="assets/images/tshirt_pointing.jpg" alt="SMO Tshirt pointing" style="width:100%;display:block;cursor:pointer" onclick="document.getElementById('tshirt-main-img').src=this.src">
+</div>
+
+<!-- ── CART PANEL ── -->
+<div id="cart-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);border-top:1px solid var(--border);padding:16px 60px;display:flex;align-items:center;justify-content:space-between;z-index:500">
+  <span id="cart-summary" style="font-size:13px;color:var(--light-grey)"></span>
+  <a href="checkout.html" class="btn btn-primary">Checkout →</a>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="index.html" class="footer-logo"><span>★</span>SMO</a>
+      <div class="footer-tagline">Dublin, Ireland</div>
+    </div>
+    <div class="footer-nav">
+      <h4>Links</h4>
+      <ul>
+        <li><a href="index.html#shows">Shows</a></li>
+        <li><a href="index.html#music">Music</a></li>
+        <li><a href="shop.html">Shop</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-tagline" style="text-align:right;margin-bottom:16px">Follow SMO</div>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/smo_rockstar" target="_blank" class="social-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" class="social-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5-1 4-1 4 1 4 1"/><path d="M7 10s2-1.5 5-1.5 5 1.5 5 1.5"/><path d="M9 16s1.5-.5 3-.5 3 .5 3 .5"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SMO. All rights reserved.</span>
+    <span>smo.ie</span>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/main.js"></script>
+<script>
+  // Show cart bar when items in cart
+  function updateCartBar() {
+    const cart = JSON.parse(localStorage.getItem('smo_cart') || '[]');
+    const bar = document.getElementById('cart-bar');
+    const summary = document.getElementById('cart-summary');
+    if (!bar) return;
+    const total = cart.reduce((s, i) => s + i.qty, 0);
+    const price = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    if (total > 0) {
+      bar.style.display = 'flex';
+      if (summary) summary.textContent = `${total} item${total>1?'s':''} — €${price.toFixed(2)}`;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+  updateCartBar();
+  // Re-check after add-to-cart
+  document.addEventListener('click', () => setTimeout(updateCartBar, 200));
+</script>
+
+</body>
+</html>

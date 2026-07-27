@@ -1,0 +1,8 @@
+[
+  {
+    "id": "smo-tshirt-white",
+    "title": "★ SMO T-Shirt (White)",
+    "priceCents": 3000,
+    "sizes": ["S", "M", "L", "XL", "XXL"]
+  }
+]

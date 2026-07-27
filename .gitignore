@@ -1,0 +1,13 @@
+# Stripe secret — NEVER commit this. Lives only on the server.
+stripe-secret.php
+
+# Private order/attempt logs (server-side only; local fallback dir if testing)
+logs/
+
+# Original Hostinger zips / reference exports
+*.zip
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
