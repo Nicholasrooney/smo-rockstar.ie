@@ -165,8 +165,8 @@ nav.scrolled {
   pointer-events: none;
 }
 
-/* Respect a reduced-motion preference: hold the poster frame instead of
-   looping video. */
+/* Reduced-motion visitors still get the video — it's the hero, not decoration.
+   Only the slow zoom-out is dropped. */
 @media (prefers-reduced-motion: reduce) {
   .hero-video { animation: none; transform: none; }
 }
@@ -704,6 +704,19 @@ footer {
   color: var(--grey);
   font-size: 11px;
   letter-spacing: 0.1em;
+}
+
+/* Legal / cookie-settings links sit in the footer bar — keep them the same
+   weight as the copyright text rather than default link blue. */
+.footer-bottom a {
+  color: var(--grey);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-bottom a:hover { color: var(--white); }
+
+@media (max-width: 700px) {
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
 }
 
 /* ── SHOP PAGE ── */

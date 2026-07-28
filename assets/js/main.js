@@ -12,12 +12,26 @@ hamburger?.addEventListener('click', () => {
 });
 
 // ── HERO VIDEO ──
-// CSS can stop the zoom for reduced-motion users but not the loop itself,
-// so pause the video and let the poster frame stand in.
+// This used to pause the video for prefers-reduced-motion users, which meant
+// anyone with Windows "animation effects" switched off saw a still frame and
+// assumed the video was broken — that setting is common and it's the default
+// on plenty of machines. The video IS the hero here, not decoration, so it
+// plays for everyone; the CSS drops the slow zoom-out for reduced-motion
+// users instead, which is the gratuitous part.
+//
+// Autoplay can still be refused (some mobile data-saver modes). Retry once on
+// first interaction rather than leaving a frozen frame with no explanation.
 const heroVideo = document.querySelector('.hero-video');
-if (heroVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  heroVideo.removeAttribute('autoplay');
-  heroVideo.pause();
+if (heroVideo) {
+  const tryPlay = () => {
+    const p = heroVideo.play();
+    if (p && p.catch) p.catch(() => {});
+  };
+  tryPlay();
+  heroVideo.addEventListener('canplay', tryPlay, { once: true });
+  ['pointerdown', 'touchstart', 'keydown'].forEach(evt =>
+    window.addEventListener(evt, tryPlay, { once: true, passive: true })
+  );
 }
 
 // ── CART ──

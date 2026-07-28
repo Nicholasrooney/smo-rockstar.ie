@@ -77,6 +77,25 @@ the screen.
 grep -rn "?v=" *.html
 ```
 
+## Cookies / analytics
+
+`assets/js/cookie-consent.js` (plain script, not a module) renders the banner
+and gates analytics. Nothing tracking loads until the visitor clicks
+**Accept All**; the choice is stored in the `smo_cookie_consent` cookie for 12
+months. Any element with `data-cookie-settings` reopens the banner — there's
+one in every footer.
+
+**Analytics are currently OFF**: `GA_ID` in that file is empty, so even an
+"Accept All" loads nothing. Paste the GA4 measurement ID in to switch them on;
+no other change needed.
+
+`legal.html` holds the Cookie Policy (`#cookies`) and Privacy Policy
+(`#privacy`) the banner links to. It describes the real data flow — Stripe
+takes card details on its own page, order details are emailed + logged, orders
+kept six years for Revenue. **It gives `hello@smo-rockstar.ie` as the contact
+address — that mailbox still needs creating**, and the analytics wording says
+they aren't switched on yet, so revisit it when they are.
+
 ## Media
 
 **Hero video** (`assets/video/hero.mp4`) is the beach music-video clip, muted and
