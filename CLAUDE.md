@@ -61,6 +61,22 @@ that properly needs a Stripe webhook.
 shows won't save until a real project is created and the config filled in.
 Until then the homepage falls back to two hardcoded example shows.
 
+## Cache busting — IMPORTANT
+
+Every page loads `assets/css/style.css?v=N` and `assets/js/*.js?v=N`.
+**Bump `N` in every HTML file whenever you change the CSS or JS**, otherwise
+returning visitors pair the new HTML with their cached old stylesheet.
+
+That already bit once: the hero `<video>` shipped while browsers still held the
+pre-video stylesheet, so with no `.hero-video` rule the video fell back to its
+intrinsic 666×464 as a plain flex item and — because `.hero` is
+`align-items: flex-end` — landed in the bottom-left corner instead of filling
+the screen.
+
+```bash
+grep -rn "?v=" *.html
+```
+
 ## Media
 
 **Hero video** (`assets/video/hero.mp4`) is the beach music-video clip, muted and
