@@ -1,8 +1,20 @@
 [
   {
-    "id": "smo-tshirt-white",
-    "title": "★ SMO T-Shirt (White)",
-    "priceCents": 3000,
+    "id": "smo-tee-star-black",
+    "title": "★ SMO Star Logo Tee — Black",
+    "priceCents": 2500,
+    "sizes": ["S", "M", "L", "XL", "XXL"]
+  },
+  {
+    "id": "smo-tee-star-white",
+    "title": "★ SMO Star Logo Tee — White",
+    "priceCents": 2500,
+    "sizes": ["S", "M", "L", "XL", "XXL"]
+  },
+  {
+    "id": "smo-tee-crowd-black",
+    "title": "★ SMO Crowd Tee — Black",
+    "priceCents": 2500,
     "sizes": ["S", "M", "L", "XL", "XXL"]
   }
 ]

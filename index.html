@@ -7,7 +7,7 @@
   <meta name="description" content="SMO — Dublin alt-rock band. Live shows, music, merch.">
   <meta property="og:title" content="SMO">
   <meta property="og:description" content="Dublin alt-rock. Catch us live.">
-  <meta property="og:image" content="assets/images/smo_sunglasses.jpg">
+  <meta property="og:image" content="assets/images/og-image.jpg">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
@@ -35,7 +35,13 @@
 
 <!-- ── HERO ── -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <!-- Background video. Muted + playsinline are what let it autoplay on
+       mobile; the poster paints instantly while the mp4 streams in, and
+       stands in entirely if the browser refuses to autoplay. -->
+  <video class="hero-video" autoplay muted loop playsinline preload="auto"
+         poster="assets/images/hero-poster.jpg" aria-hidden="true" tabindex="-1">
+    <source src="assets/video/hero.mp4" type="video/mp4">
+  </video>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-eyebrow">Dublin, Ireland</div>
@@ -73,8 +79,8 @@
 <section id="about">
   <div class="about-grid">
     <div class="about-images">
-      <img src="assets/images/smo_sunglasses.jpg" alt="SMO performing live" class="about-img-main">
-      <img src="assets/images/band_stage.jpg" alt="SMO band on stage" class="about-img-accent">
+      <img src="assets/images/about-portrait.jpg" alt="Sam of SMO" class="about-img-main">
+      <img src="assets/images/about-live.jpg" alt="SMO live on stage" class="about-img-accent">
     </div>
     <div class="about-text">
       <span class="section-label">The Band</span>
@@ -120,7 +126,7 @@
 
     <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
       <div class="release-artwork">
-        <img src="assets/images/smo_sunglasses.jpg" alt="Lost My Way">
+        <img src="assets/images/release-lost-my-way.jpg" alt="Lost My Way">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
@@ -135,7 +141,7 @@
 
     <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
       <div class="release-artwork">
-        <img src="assets/images/smo_bw.jpg" alt="War">
+        <img src="assets/images/release-war.jpg" alt="War">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
@@ -150,7 +156,7 @@
 
     <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
       <div class="release-artwork">
-        <img src="assets/images/gig_whelans.jpg" alt="Love Me Too">
+        <img src="assets/images/release-love-me-too.jpg" alt="Love Me Too">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
@@ -165,7 +171,7 @@
 
     <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
       <div class="release-artwork">
-        <img src="assets/images/keyboard.jpg" alt="Celebrate You">
+        <img src="assets/images/release-celebrate-you.jpg" alt="Celebrate You">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
@@ -188,14 +194,14 @@
 <!-- ── GALLERY ── -->
 <section style="padding-top:0">
   <div class="gallery-grid">
-    <img src="assets/images/smo_portrait.jpg" alt="SMO" class="wide">
-    <img src="assets/images/guitarist.jpg" alt="Guitarist">
-    <img src="assets/images/drummer.jpg" alt="Drummer">
-    <img src="assets/images/keyboard.jpg" alt="Keyboard">
-    <img src="assets/images/smo_bw.jpg" alt="SMO performing">
-    <img src="assets/images/band_stage.jpg" alt="Band on stage" class="wide">
-    <img src="assets/images/gig_whelans.jpg" alt="Whelans gig">
-    <img src="assets/images/smo_logo_live.jpg" alt="SMO logo live">
+    <img src="assets/images/gallery-night.jpg" alt="Sam of SMO at night" class="wide" loading="lazy">
+    <img src="assets/images/gallery-guitar.jpg" alt="SMO live on guitar" loading="lazy">
+    <img src="assets/images/gallery-duo.jpg" alt="SMO on stage" loading="lazy">
+    <img src="assets/images/gallery-piano.jpg" alt="Piano" loading="lazy">
+    <img src="assets/images/gallery-vocal.jpg" alt="SMO performing" loading="lazy">
+    <img src="assets/images/gallery-band.jpg" alt="SMO band on stage" class="wide" loading="lazy">
+    <img src="assets/images/gallery-acoustic.jpg" alt="SMO acoustic set" loading="lazy">
+    <img src="assets/images/gallery-star.jpg" alt="SMO star backdrop live" loading="lazy">
   </div>
 </section>
 
@@ -203,13 +209,13 @@
 <section class="shop-preview">
   <div class="shop-preview-grid">
     <div class="shop-preview-img">
-      <img src="assets/images/tshirt_hero.jpg" alt="SMO T-Shirt">
+      <img src="assets/images/tee-star-black.jpg" alt="SMO star logo t-shirt" loading="lazy">
     </div>
     <div class="shop-preview-text">
       <span class="section-label">Merch</span>
       <h2>Wear<br>The Star</h2>
-      <p>The official SMO t-shirt. White heavyweight cotton with the signature ★SMO logo. Sizes S–XXL.</p>
-      <div class="price-tag">€30</div>
+      <p>Three official SMO tees — the star logo in yellow on black, in red on white, and the red crowd print. Heavyweight cotton, screen printed, sizes S–XXL.</p>
+      <div class="price-tag">€25</div>
       <a href="shop.html" class="btn btn-primary">Shop Now</a>
     </div>
   </div>

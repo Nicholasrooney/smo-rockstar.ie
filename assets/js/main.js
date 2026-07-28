@@ -11,6 +11,15 @@ hamburger?.addEventListener('click', () => {
   navLinks?.classList.toggle('open');
 });
 
+// ── HERO VIDEO ──
+// CSS can stop the zoom for reduced-motion users but not the loop itself,
+// so pause the video and let the poster frame stand in.
+const heroVideo = document.querySelector('.hero-video');
+if (heroVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  heroVideo.removeAttribute('autoplay');
+  heroVideo.pause();
+}
+
 // ── CART ──
 let cart = JSON.parse(localStorage.getItem('smo_cart') || '[]');
 
@@ -55,10 +64,10 @@ document.querySelectorAll('[data-add-to-cart]').forEach(btn => {
       return;
     }
     const product = {
-      id: btn.dataset.productId || 'smo-tshirt',
+      id: btn.dataset.productId || 'smo-tee-star-black',
       name: btn.dataset.productName || 'SMO T-Shirt',
-      price: parseFloat(btn.dataset.productPrice || '30'),
-      image: btn.dataset.productImage || 'assets/images/tshirt_hero.jpg'
+      price: parseFloat(btn.dataset.productPrice || '25'),
+      image: btn.dataset.productImage || 'assets/images/tee-star-black.jpg'
     };
     addToCart(product, activeSize.textContent.trim());
   });

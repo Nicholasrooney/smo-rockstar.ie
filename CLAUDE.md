@@ -19,6 +19,7 @@ assets/js/main.js            site + cart + Stripe redirect
 assets/js/admin.js           shows CRUD
 assets/js/firebase-config.js Firebase keys + admin email
 assets/images/               all photos
+assets/video/hero.mp4        homepage hero background video
 data/products.json           server-side source of truth for prices
 checkout.php                 creates the Stripe Checkout Session
 order-confirm.php            verifies payment, logs + emails the order
@@ -60,14 +61,31 @@ that properly needs a Stripe webhook.
 shows won't save until a real project is created and the config filled in.
 Until then the homepage falls back to two hardcoded example shows.
 
+## Media
+
+**Hero video** (`assets/video/hero.mp4`) is the beach music-video clip, muted and
+looping behind the homepage headline. Source was a WhatsApp export — only
+832×464 with 84px black pillarbox bars each side, cropped out to 666×464 and
+re-encoded to 2.6MB. It's scaled up a long way on desktop; the dark overlay
+hides most of it, but if a higher-resolution master ever turns up, re-encode
+from that. Autoplay needs `muted` + `playsinline` — don't remove either.
+Reduced-motion users get the poster frame instead (paused in `main.js`).
+
+**Photos** came from `SMO/Pictures.zip` (44 shots, ~332MB of originals). The
+web copies are resized/optimised to ~1.4MB total. Originals are NOT in the repo
+— go back to the zip to re-cut. `release-love-me-too.jpg` is the real single
+artwork; there's also official "Listen" artwork in the zip
+(`Photo 07-03-2025, 22 10 19.png`) unused, since the releases grid has no
+Listen card yet.
+
 ## Gotchas
 
 - The images in the original Hostinger zip were named `foo (1).jpg` (browser
   duplicate downloads) while the HTML asked for `foo.jpg` — every image on the
   site was broken. Renamed on import. Watch for this on future drops.
-- Four t-shirt photos (`tshirt_hero`, `tshirt_pointing`, `tshirt_smile`,
-  `tshirt_product`) are byte-identical — same photo four times. Worth replacing
-  with real product shots.
+- Five files in `Pictures.zip` named `.webp` are actually HEIC — Pillow can't
+  read them without `pillow-heif`. They're variants of a shot already used, so
+  they were skipped.
 - `.hidden` was only defined as `.modal-overlay.hidden`, so bare `.hidden`
   elements stayed visible. A global rule is now in `style.css`.
 - Footer/meta say `smo.ie` in places but the domain is `smo-rockstar.ie`.
