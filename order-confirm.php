@@ -23,8 +23,11 @@ date_default_timezone_set('Europe/Dublin');
 require __DIR__ . '/smo-log.php';
 
 /* ---- who gets the "new order" email ----
-   TODO: add the band's own address here once Sam confirms it. */
-$NOTIFY = 'nicholas.rooney2010@gmail.com';
+   Deliberately the domain addresses rather than anyone's personal Gmail:
+   this repo is public, and both of these forward on via Cloudflare Email
+   Routing. It also means changing who gets order alerts is a Cloudflare
+   change, not a code change and redeploy. */
+$NOTIFY = 'info@smo-rockstar.ie, sam@smo-rockstar.ie';
 $FROM   = 'SMO Orders <orders@smo-rockstar.ie>';   // must be the Hostinger domain (SPF-aligned)
 
 /* ---- secret key: same lookup as checkout.php ---- */

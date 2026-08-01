@@ -92,9 +92,38 @@ no other change needed.
 `legal.html` holds the Cookie Policy (`#cookies`) and Privacy Policy
 (`#privacy`) the banner links to. It describes the real data flow — Stripe
 takes card details on its own page, order details are emailed + logged, orders
-kept six years for Revenue. **It gives `hello@smo-rockstar.ie` as the contact
-address — that mailbox still needs creating**, and the analytics wording says
-they aren't switched on yet, so revisit it when they are.
+kept six years for Revenue. Contact address is `info@smo-rockstar.ie`. The
+analytics wording says they aren't switched on yet, so revisit it when they are.
+
+## Email
+
+`smo-rockstar.ie` and `smo-rockstar.com` both sit on **Cloudflare DNS**, with
+**Cloudflare Email Routing** forwarding `info@` and `sam@` to Nicholas and Sam.
+There are no real mailboxes — it's forward-only, so replying *as* those
+addresses needs a separate SMTP relay.
+
+`sam@` (and possibly `info@`) route through a Cloudflare **Email Worker**
+called `smo-rockstarredirect`, which fans one address out to several people —
+routing rules only allow one destination each. To change who gets what, edit
+the Worker or the rule in Cloudflare, **not** this repo.
+
+`order-confirm.php` notifies `info@` + `sam@` rather than anyone's personal
+Gmail. That's deliberate: **this GitHub repo is public**, so don't paste
+personal addresses into it. It also means recipients are changed in Cloudflare
+without a redeploy.
+
+DNS worth knowing (all on Cloudflare):
+- `A` → `213.130.145.115` (Hostinger, shared with eastcoastmechanics.ie),
+  **grey-clouded** — proxying it breaks Hostinger's SSL renewal.
+- SPF must keep BOTH includes or order emails get treated as spoofed:
+  `v=spf1 include:_spf.mx.cloudflare.net include:_spf.mail.hostinger.com ~all`
+- Only ever one SPF record. Two is a hard failure.
+- `smo-rockstar.com` is a 301 redirect to the `.ie` and stays **orange-clouded** —
+  Cloudflare Redirect Rules only fire on proxied traffic.
+
+Gmail gotcha that cost an hour: sending a test from the same Gmail the address
+forwards to shows nothing in the inbox — Gmail suppresses its own message
+coming back. Check Cloudflare's Activity Log, or test from another account.
 
 ## Media
 
