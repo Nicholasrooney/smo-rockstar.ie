@@ -14,7 +14,7 @@
    is the safe default.
    ===================================================================== */
 (function () {
-  var GA_ID = '';                          // e.g. 'G-XXXXXXXXXX' — empty = analytics off
+  var GA_ID = 'G-22X3PYDM1J';              // GA4 measurement ID. Empty = analytics off.
   var CONSENT_COOKIE = 'smo_cookie_consent';
   var CONSENT_DAYS = 365;
 
