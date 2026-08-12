@@ -310,9 +310,10 @@ document.getElementById('pay-btn')?.addEventListener('click', async (e) => {
 const FEATURED_RELEASE = {
   title:       'White Flag',
   presave:     'https://ditto.fm/white-flag-smo',
-  releaseDate: ''            // ← set this, e.g. '2026-09-05'
+  releaseDate: '2026-08-14'  // Friday 14 August 2026
 };
-const FEATURE_DAYS = 7;      // how long it stays featured after release
+const FEATURE_DAYS = 10;     // stays featured for 10 days after release,
+                             // i.e. retires on Monday 24 August 2026
 
 (function featureRelease() {
   const block = document.getElementById('featured-release');

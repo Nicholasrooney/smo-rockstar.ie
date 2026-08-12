@@ -56,7 +56,7 @@ $desc  = $show
 <?php if ($photos): ?>
   <meta property="og:image" content="https://smo-rockstar.ie/<?= e($photos[0]) ?>">
 <?php endif; ?>
-  <link rel="stylesheet" href="assets/css/style.css?v=11">
+  <link rel="stylesheet" href="assets/css/style.css?v=12">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 <?php if ($show && $ts !== false): ?>
   <script type="application/ld+json">
@@ -165,7 +165,7 @@ $desc  = $show
   </div>
 </footer>
 
-<script src="assets/js/cookie-consent.js?v=11" defer></script>
+<script src="assets/js/cookie-consent.js?v=12" defer></script>
 
 </body>
 </html>

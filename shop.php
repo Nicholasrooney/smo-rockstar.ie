@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shop</title>
   <link rel="canonical" href="https://smo-rockstar.ie/shop.html">
-  <link rel="stylesheet" href="assets/css/style.css?v=11">
+  <link rel="stylesheet" href="assets/css/style.css?v=12">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -130,7 +130,7 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=11"></script>
+<script type="module" src="assets/js/main.js?v=12"></script>
 <script>
   // Show cart bar when items in cart
   function updateCartBar() {
@@ -152,7 +152,7 @@
   document.addEventListener('click', () => setTimeout(updateCartBar, 200));
 </script>
 
-<script src="assets/js/cookie-consent.js?v=11" defer></script>
+<script src="assets/js/cookie-consent.js?v=12" defer></script>
 
 </body>
 </html>
