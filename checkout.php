@@ -51,6 +51,9 @@ foreach ($products as $p) { $byId[(string)$p['id']] = $p; }
 
 /* ---- build Stripe line items (server-side prices only) ---- */
 $lineItems = [];
+/* Stays false while the cart holds only freeShipping items (the €1 test
+   item uses this, so a payment test costs exactly €1 and nothing else). */
+$needsShipping = false;
 foreach ($items as $i) {
     $id = (string)($i['id'] ?? '');
     if (!isset($byId[$id])) continue;
@@ -73,6 +76,7 @@ foreach ($items as $i) {
         ],
         'quantity' => $qty,
     ];
+    if (empty($p['freeShipping'])) $needsShipping = true;
 }
 if (!$lineItems) { http_response_code(400); echo json_encode(['error' => 'Nothing purchasable in your cart.']); exit; }
 
@@ -96,6 +100,13 @@ if ($region === 'IE') {
     http_response_code(400);
     echo json_encode(['error' => 'For delivery outside Ireland, the UK and the EU, message SMO on Instagram for a postage quote.']);
     exit;
+}
+
+/* A cart holding ONLY freeShipping items ships free — the €1 test item
+   uses this so a live payment test costs exactly €1. */
+if (!$needsShipping) {
+    $shipAmount = 0;
+    $shipLabel  = 'Free shipping';
 }
 
 /* ---- create the Checkout Session via Stripe REST API ---- */

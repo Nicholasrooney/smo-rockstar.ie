@@ -55,7 +55,7 @@ function addToCart(product, size) {
     cart.push({ ...product, size, qty: 1 });
   }
   saveCart();
-  showToast(`Added ${product.name} (${size}) to cart ★`);
+  showToast(`Added ${product.name}${size ? ` (${size})` : ''} to cart ★`);
 }
 
 // ── SIZE SELECTOR ──
@@ -72,8 +72,11 @@ document.querySelectorAll('.size-selector').forEach(sel => {
 document.querySelectorAll('[data-add-to-cart]').forEach(btn => {
   btn.addEventListener('click', () => {
     const card = btn.closest('.product-card');
+    // Only insist on a size for products that actually offer sizes — the €1
+    // test item has no size selector at all.
+    const hasSizes = !!card?.querySelector('.size-selector');
     const activeSize = card?.querySelector('.size-btn.active');
-    if (!activeSize) {
+    if (hasSizes && !activeSize) {
       showToast('Please select a size first');
       return;
     }
@@ -83,7 +86,7 @@ document.querySelectorAll('[data-add-to-cart]').forEach(btn => {
       price: parseFloat(btn.dataset.productPrice || '25'),
       image: btn.dataset.productImage || 'assets/images/tee-star-black.jpg'
     };
-    addToCart(product, activeSize.textContent.trim());
+    addToCart(product, activeSize ? activeSize.textContent.trim() : '');
   });
 });
 
@@ -194,6 +197,12 @@ updateCartBadge();
 // rate server-side from the same region code, so the two can't drift apart.
 const SHIPPING = { IE: 5, UK: 7, EU: 9 };
 
+// Mirrors the freeShipping flag in data/products.json. A cart holding only
+// these ships free, so the €1 test item is charged as exactly €1. Keep this
+// in step with products.json or the page will quote a total Stripe doesn't
+// then charge.
+const FREE_SHIPPING_IDS = new Set(['smo-test-1']);
+
 function renderCheckout() {
   const list = document.getElementById('checkout-items');
   const subtotalEl = document.getElementById('subtotal');
@@ -217,7 +226,7 @@ function renderCheckout() {
       <img src="${item.image}" alt="${item.name}">
       <div class="order-item-details">
         <h4>${item.name}</h4>
-        <p>Size: ${item.size} &nbsp;·&nbsp; Qty: ${item.qty}</p>
+        <p>${item.size ? `Size: ${item.size} &nbsp;·&nbsp; ` : ''}Qty: ${item.qty}</p>
         <p style="color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:20px;margin-top:4px">€${(item.price * item.qty).toFixed(2)}</p>
       </div>
     </div>
@@ -225,7 +234,8 @@ function renderCheckout() {
 
   const region = document.getElementById('region')?.value || 'IE';
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const shipping = SHIPPING[region] ?? 5;
+  const allFreeShipping = cart.every(i => FREE_SHIPPING_IDS.has(i.id));
+  const shipping = allFreeShipping ? 0 : (SHIPPING[region] ?? 5);
   if (subtotalEl) subtotalEl.textContent = `€${subtotal.toFixed(2)}`;
   if (shippingEl) shippingEl.textContent = `€${shipping.toFixed(2)}`;
   if (totalEl) totalEl.textContent = `€${(subtotal + shipping).toFixed(2)}`;

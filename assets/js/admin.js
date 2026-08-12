@@ -35,10 +35,30 @@
     body.append('action', action);
     if (csrf) body.append('csrf', csrf);
     Object.keys(data || {}).forEach(function (k) { body.append(k, data[k]); });
-    return fetch(API, { method: 'POST', body: body }).then(function (r) {
-      return r.json().catch(function () { return { error: 'Server returned something unreadable.' }; })
-        .then(function (j) { if (!r.ok) throw new Error(j.error || 'Request failed'); return j; });
-    });
+
+    return fetch(API, { method: 'POST', body: body })
+      .catch(function () {
+        /* fetch only rejects on a network-level failure. The usual cause is
+           opening this page from a local preview, where there is no PHP and
+           POSTs are dropped — "Failed to fetch" on its own explains none of
+           that, so say it plainly. */
+        throw new Error('Could not reach the server. This page only works on the live site — open https://smo-rockstar.ie/admin.html rather than a local preview.');
+      })
+      .then(function (r) {
+        return r.text().then(function (txt) {
+          var j = null;
+          try { j = JSON.parse(txt); } catch (e) { j = null; }
+          if (j === null) {
+            /* A 200 carrying non-JSON used to be treated as success, which
+               silently "logged in" with no session. Fail loudly instead. */
+            throw new Error(r.ok
+              ? 'The server replied with something that is not JSON — PHP may not be running on this host.'
+              : 'Server error ' + r.status + '.');
+          }
+          if (!r.ok) throw new Error(j.error || 'Request failed.');
+          return j;
+        });
+      });
   }
 
   function esc(s) {
