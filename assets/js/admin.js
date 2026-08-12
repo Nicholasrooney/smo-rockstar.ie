@@ -161,7 +161,7 @@
         field(i, 'venue', 'Venue & location', s.venue, 'Grand Social, Dublin') +
       '</div>' +
       '<div class="adm-row">' +
-        field(i, 'date', 'Date & time *', s.date, '', 'datetime-local') +
+        dateFields(i, s.date) +
         field(i, 'price', 'Ticket price (€) — blank or 0 = free', s.price, '15') +
       '</div>' +
       field(i, 'ticketLink', 'Ticket link', s.ticketLink, 'https://…') +
@@ -191,6 +191,64 @@
     '</div>';
   }
 
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+  /* Split day / month / year / time rather than one datetime-local box.
+     The native control makes you arrow through the year a digit at a time,
+     which is miserable; a select opens the whole list on a tap and still
+     accepts typing, because select type-ahead jumps to what you type. */
+  function dateFields(i, val) {
+    var d = parseDate(val);
+    var thisYear = new Date().getFullYear();
+    var years = [];
+    for (var y = thisYear; y <= thisYear + 6; y++) years.push(y);
+    /* Keep an out-of-range year (editing an old gig) selectable. */
+    if (d.year && years.indexOf(d.year) === -1) years.unshift(d.year);
+
+    var daysInMonth = (d.year && d.month) ? new Date(d.year, d.month, 0).getDate() : 31;
+
+    var opts = function (list, sel, fmt) {
+      return list.map(function (v) {
+        return '<option value="' + v + '"' + (String(v) === String(sel) ? ' selected' : '') + '>' +
+               (fmt ? fmt(v) : v) + '</option>';
+      }).join('');
+    };
+    var days = []; for (var n = 1; n <= daysInMonth; n++) days.push(n);
+    var months = []; for (var m = 1; m <= 12; m++) months.push(m);
+
+    return '<div class="form-group">' +
+      '<label>Date &amp; time *</label>' +
+      '<div class="date-row">' +
+        '<select data-d="day" data-i="' + i + '" aria-label="Day">' +
+          '<option value="">Day</option>' + opts(days, d.day) + '</select>' +
+        '<select data-d="month" data-i="' + i + '" aria-label="Month">' +
+          '<option value="">Month</option>' +
+          opts(months, d.month, function (m) { return MONTHS[m - 1]; }) + '</select>' +
+        '<select data-d="year" data-i="' + i + '" aria-label="Year">' +
+          '<option value="">Year</option>' + opts(years, d.year) + '</select>' +
+        '<input type="time" data-d="time" data-i="' + i + '" value="' + esc(d.time) + '" aria-label="Start time">' +
+      '</div>' +
+    '</div>';
+  }
+
+  function parseDate(val) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}:\d{2}))?/.exec(String(val || ''));
+    if (!m) return { year: '', month: '', day: '', time: '20:00' };
+    return { year: +m[1], month: +m[2], day: +m[3], time: m[4] || '20:00' };
+  }
+
+  function composeDate(i) {
+    var pick = function (k) {
+      var el = document.querySelector('[data-d="' + k + '"][data-i="' + i + '"]');
+      return el ? el.value : '';
+    };
+    var y = pick('year'), mo = pick('month'), da = pick('day'), t = pick('time') || '20:00';
+    if (!y || !mo || !da) return '';        // incomplete = no date, and the flag says so
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+    return y + '-' + pad(mo) + '-' + pad(da) + 'T' + t;
+  }
+
   function field(i, key, label, val, ph, type) {
     return '<div class="form-group">' +
       '<label>' + label + '</label>' +
@@ -205,6 +263,19 @@
       el.addEventListener('input', function () {
         shows[+el.dataset.i][el.dataset.f] = el.value;
         refreshFlag(+el.dataset.i);
+        dirty();
+      });
+    });
+
+    /* date parts */
+    document.querySelectorAll('[data-d]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var i = +el.dataset.i;
+        shows[i].date = composeDate(i);
+        /* Changing month or year can shorten the month — redraw so 31 Feb
+           can't be left selected. */
+        if (el.dataset.d === 'month' || el.dataset.d === 'year') { render(); }
+        else { refreshFlag(i); }
         dirty();
       });
     });

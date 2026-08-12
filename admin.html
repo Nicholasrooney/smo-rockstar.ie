@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shows Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
   <style>
     .adm { max-width: 900px; margin: 0 auto; padding: 0 32px 120px; }
@@ -40,6 +40,19 @@
       border-radius: 50%; border: none; background: var(--red); color: #fff;
       cursor: pointer; font-size: 13px; line-height: 1;
     }
+    /* day / month / year / time sit on one line; each opens a full list on
+       tap instead of making you arrow through digits. */
+    .date-row { display: grid; grid-template-columns: 1fr 1.5fr 1fr 1.1fr; gap: 6px; }
+    .date-row select, .date-row input {
+      width: 100%; padding: 12px 8px;
+      background: var(--off-black); color: var(--white);
+      border: 1px solid var(--border);
+      font-family: 'Space Mono', monospace; font-size: 13px;
+    }
+    .date-row select:focus, .date-row input:focus { outline: none; border-color: var(--red); }
+    @media (max-width: 520px) { .date-row { grid-template-columns: 1fr 1fr; } }
+
+    .adm-card-bad { border-color: var(--red); }
     .toast-ok { color: #4ade80; font-size: 12px; letter-spacing: .08em; }
     .toast-err { color: var(--red); font-size: 12px; letter-spacing: .08em; }
     @media (max-width: 640px) { .adm-row { grid-template-columns: 1fr; } .adm { padding: 0 20px 80px; } }
@@ -114,7 +127,7 @@
 
 </div>
 
-<script src="assets/js/admin.js?v=7"></script>
+<script src="assets/js/admin.js?v=8"></script>
 
 </body>
 </html>

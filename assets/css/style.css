@@ -421,6 +421,9 @@ section { padding: 100px 60px; }
   background: rgba(255,255,255,0.02);
   opacity: 0;
   transition: opacity 0.2s;
+  /* Without this the overlay swallows every click on the row, including
+     "Get Tickets" — it's decoration, it should never intercept a pointer. */
+  pointer-events: none;
 }
 
 .show-item:hover::before { opacity: 1; }
@@ -1146,9 +1149,14 @@ footer {
   .footer-top { grid-template-columns: 1fr 1fr; }
 
   .admin-panel { padding: 30px 24px; }
+  /* The ticket button used to be hidden here along with the price, which
+     meant no one on a phone could buy a ticket at all. It now drops onto its
+     own row underneath instead. */
   .show-item,
   .show-item:has(.show-thumb) { grid-template-columns: 100px 1fr; }
-  .show-price, .show-tickets, .show-thumb { display: none; }
+  .show-thumb { display: none; }
+  .show-price { grid-column: 1; font-size: 20px; }
+  .show-tickets { grid-column: 2; justify-self: start; }
 }
 
 @media (max-width: 768px) {
@@ -1286,4 +1294,84 @@ body.smo-ck-open { padding-bottom: var(--smo-ck-h, 0px); }
   .btn-buy:hover:not(:disabled), .btn-buy:active:not(:disabled) { transform: none; }
   /* Keep a visible resting shadow so the button still reads as raised. */
   .btn-buy { box-shadow: 0 4px 18px rgba(229,35,61,.3); }
+}
+
+/* ============================================================
+   SINGLE GIG PAGE
+   ============================================================ */
+.gig { max-width: 820px; margin: 0 auto; padding: 0 32px 120px; }
+
+.gig-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 36px;
+}
+.gig-fact { background: var(--card-bg); padding: 22px 20px; }
+.gig-fact .k {
+  display: block;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.gig-fact .v {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--white);
+  letter-spacing: .02em;
+}
+
+.gig-past {
+  color: var(--grey);
+  font-size: 13px;
+  letter-spacing: .06em;
+  padding: 18px 0;
+}
+.gig-past a { color: var(--red); text-decoration: none; }
+
+.gig-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin: 44px 0;
+}
+.gig-gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+/* A single photo shouldn't stretch to a full-width band. */
+.gig-gallery img:only-child { aspect-ratio: 16 / 9; }
+
+.gig-back {
+  display: inline-block;
+  color: var(--grey);
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.gig-back:hover { color: var(--white); }
+
+/* ---- whole show row links to its gig page ---- */
+/* The stretched pseudo-element makes the entire row clickable while the real
+   anchor stays on the title, so screen readers and the status bar still get
+   sensible link text. */
+.show-link { color: inherit; text-decoration: none; }
+.show-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.show-item:hover .show-link { color: var(--red); }
+
+/* Get Tickets must sit above the stretched link or the row swallows it. */
+.show-tickets, .show-price { position: relative; z-index: 2; }
+
+@media (max-width: 640px) {
+  .gig { padding: 0 20px 80px; }
+  .gig-fact { padding: 18px 16px; }
+  .gig-fact .v { font-size: 22px; }
 }

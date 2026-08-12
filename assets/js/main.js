@@ -177,7 +177,7 @@ async function loadShows() {
           ${day}
         </div>
         <div class="show-info">
-          <h3>${escapeHtml(show.name)}</h3>
+          <h3><a class="show-link" href="show.php?id=${encodeURIComponent(show.id)}">${escapeHtml(show.name)}</a></h3>
           <div class="venue">📍 ${escapeHtml(show.venue)} &nbsp;·&nbsp; ⏰ ${time}</div>
         </div>
         <div class="${free ? 'show-price free' : 'show-price'}">${priceStr}</div>
