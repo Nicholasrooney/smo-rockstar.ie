@@ -1,3 +1,4 @@
+<?php require __DIR__ . "/content.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shop</title>
   <link rel="canonical" href="https://smo-rockstar.ie/shop.html">
-  <link rel="stylesheet" href="assets/css/style.css?v=10">
+  <link rel="stylesheet" href="assets/css/style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -32,99 +33,46 @@
 
 <!-- ── PAGE HERO ── -->
 <div class="page-hero">
-  <span class="section-label">Official Merch</span>
-  <h1>The Shop</h1>
+  <span class="section-label"><?= h(smo_text('shopPage.kicker', 'Official Merch')) ?></span>
+  <h1><?= h_lines(smo_text('shopPage.heading', 'The Shop')) ?></h1>
 </div>
 
 <!-- ── SHOP GRID ── -->
+<!-- Rendered from data/products.json — the same file checkout.php re-prices
+     against, so the page and the charge can never disagree. -->
 <div class="shop-grid">
-
-  <!-- Product: Star Logo Tee (Black) -->
+<?php foreach (smo_json('products') as $p):
+        $sizes = is_array($p['sizes'] ?? null) ? $p['sizes'] : []; ?>
   <div class="product-card">
     <div class="product-card-img">
-      <img src="assets/images/tee-star-black.jpg" alt="SMO star logo t-shirt in yellow on black">
+      <img src="<?= h($p['image'] ?? '') ?>" alt="<?= h($p['alt'] ?? ($p['title'] ?? '')) ?>" loading="lazy">
     </div>
     <div class="product-card-body">
-      <h3>★ Star Logo Tee — Black</h3>
-      <p style="color:var(--grey);font-size:12px;margin-bottom:12px">The star and SMO wordmark in yellow on black heavyweight cotton. Screen printed. Pre-washed.</p>
-      <div class="product-price">€25</div>
+      <h3><?= h($p['title'] ?? '') ?></h3>
+<?php if (!empty($p['description'])): ?>
+      <p style="color:var(--grey);font-size:12px;margin-bottom:12px"><?= h($p['description']) ?></p>
+<?php endif; ?>
+      <div class="product-price"><?= h(smo_price($p['priceCents'] ?? 0)) ?></div>
+<?php if ($sizes): ?>
       <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px">Select Size</div>
       <div class="size-selector">
-        <button class="size-btn">S</button>
-        <button class="size-btn">M</button>
-        <button class="size-btn">L</button>
-        <button class="size-btn">XL</button>
-        <button class="size-btn">XXL</button>
+<?php   foreach ($sizes as $sz): ?>
+        <button class="size-btn"><?= h($sz) ?></button>
+<?php   endforeach; ?>
       </div>
+<?php endif; ?>
       <button
         class="btn btn-primary"
         style="width:100%;justify-content:center;margin-bottom:12px"
         data-add-to-cart
-        data-product-id="smo-tee-star-black"
-        data-product-name="★ Star Logo Tee — Black"
-        data-product-price="25"
-        data-product-image="assets/images/tee-star-black.jpg"
+        data-product-id="<?= h($p['id'] ?? '') ?>"
+        data-product-name="<?= h($p['title'] ?? '') ?>"
+        data-product-price="<?= h(number_format(((int)($p['priceCents'] ?? 0)) / 100, 2, '.', '')) ?>"
+        data-product-image="<?= h($p['image'] ?? '') ?>"
       >Add to Cart</button>
     </div>
   </div>
-
-  <!-- Product: Star Logo Tee (White) -->
-  <div class="product-card">
-    <div class="product-card-img">
-      <img src="assets/images/tee-star-white.jpg" alt="SMO star logo t-shirt in red on white">
-    </div>
-    <div class="product-card-body">
-      <h3>★ Star Logo Tee — White</h3>
-      <p style="color:var(--grey);font-size:12px;margin-bottom:12px">The same star and wordmark in red on white heavyweight cotton. Screen printed. Pre-washed.</p>
-      <div class="product-price">€25</div>
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px">Select Size</div>
-      <div class="size-selector">
-        <button class="size-btn">S</button>
-        <button class="size-btn">M</button>
-        <button class="size-btn">L</button>
-        <button class="size-btn">XL</button>
-        <button class="size-btn">XXL</button>
-      </div>
-      <button
-        class="btn btn-primary"
-        style="width:100%;justify-content:center;margin-bottom:12px"
-        data-add-to-cart
-        data-product-id="smo-tee-star-white"
-        data-product-name="★ Star Logo Tee — White"
-        data-product-price="25"
-        data-product-image="assets/images/tee-star-white.jpg"
-      >Add to Cart</button>
-    </div>
-  </div>
-
-  <!-- Product: Crowd Tee (Black) -->
-  <div class="product-card">
-    <div class="product-card-img">
-      <img src="assets/images/tee-crowd-black.jpg" alt="SMO crowd print t-shirt in red on black">
-    </div>
-    <div class="product-card-body">
-      <h3>★ Crowd Tee — Black</h3>
-      <p style="color:var(--grey);font-size:12px;margin-bottom:12px">The crowd shot printed in red on black heavyweight cotton, with the ★SMO logo beneath. Screen printed. Pre-washed.</p>
-      <div class="product-price">€25</div>
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px">Select Size</div>
-      <div class="size-selector">
-        <button class="size-btn">S</button>
-        <button class="size-btn">M</button>
-        <button class="size-btn">L</button>
-        <button class="size-btn">XL</button>
-        <button class="size-btn">XXL</button>
-      </div>
-      <button
-        class="btn btn-primary"
-        style="width:100%;justify-content:center;margin-bottom:12px"
-        data-add-to-cart
-        data-product-id="smo-tee-crowd-black"
-        data-product-name="★ Crowd Tee — Black"
-        data-product-price="25"
-        data-product-image="assets/images/tee-crowd-black.jpg"
-      >Add to Cart</button>
-    </div>
-  </div>
+<?php endforeach; ?>
 
   <!-- More coming -->
   <div class="product-card" style="background:transparent;border:1px solid var(--border)">
@@ -140,10 +88,8 @@
 
 <!-- ── SHIPPING NOTE ── -->
 <div style="padding:0 60px 60px;text-align:center;color:var(--grey);font-size:12px;letter-spacing:0.08em;line-height:2">
-  Postage added at checkout — Ireland €5 · UK €7 · Rest of the EU €9.<br>
-  Shipping anywhere else? Message SMO on Instagram for a quote.
+  <?= h_lines(smo_text('shopPage.shippingNote', '')) ?>
 </div>
-
 <!-- ── CART PANEL ── -->
 <div id="cart-bar" class="cart-bar">
   <span id="cart-summary" class="cart-bar-summary"></span>
@@ -184,7 +130,7 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=10"></script>
+<script type="module" src="assets/js/main.js?v=11"></script>
 <script>
   // Show cart bar when items in cart
   function updateCartBar() {
@@ -206,7 +152,7 @@
   document.addEventListener('click', () => setTimeout(updateCartBar, 200));
 </script>
 
-<script src="assets/js/cookie-consent.js?v=10" defer></script>
+<script src="assets/js/cookie-consent.js?v=11" defer></script>
 
 </body>
 </html>

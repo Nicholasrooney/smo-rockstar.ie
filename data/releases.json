@@ -1,0 +1,7 @@
+[
+  { "id": "white-flag",    "title": "White Flag",    "meta": "Single · 2026", "image": "assets/images/release-white-flag.jpg",    "link": "https://ditto.fm/white-flag-smo", "linkLabel": "Listen",  "youtube": "https://www.youtube.com/@smo_rockstar" },
+  { "id": "lost-my-way",   "title": "Lost My Way",   "meta": "Single · 2025", "image": "assets/images/release-lost-my-way.jpg",   "link": "https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3", "linkLabel": "Spotify", "youtube": "https://www.youtube.com/@smo_rockstar" },
+  { "id": "war",           "title": "War",           "meta": "Single · 2025", "image": "assets/images/release-war.jpg",           "link": "https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3", "linkLabel": "Spotify", "youtube": "https://www.youtube.com/@smo_rockstar" },
+  { "id": "love-me-too",   "title": "Love Me Too",   "meta": "Single · 2025", "image": "assets/images/release-love-me-too.jpg",   "link": "https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3", "linkLabel": "Spotify", "youtube": "https://www.youtube.com/@smo_rockstar" },
+  { "id": "celebrate-you", "title": "Celebrate You", "meta": "Single · 2025", "image": "assets/images/release-celebrate-you.jpg", "link": "https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3", "linkLabel": "Spotify", "youtube": "https://www.youtube.com/@smo_rockstar" }
+]

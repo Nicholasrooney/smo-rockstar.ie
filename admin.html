@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shows Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="assets/css/style.css?v=10">
+  <link rel="stylesheet" href="assets/css/style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
   <style>
     .adm { max-width: 900px; margin: 0 auto; padding: 0 32px 120px; }
@@ -51,6 +51,40 @@
     }
     .date-row select:focus, .date-row input:focus { outline: none; border-color: var(--red); }
     @media (max-width: 520px) { .date-row { grid-template-columns: 1fr 1fr; } }
+
+    /* tabs */
+    .adm-tabs {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+      border-bottom: 1px solid var(--border); margin-bottom: 28px; padding-bottom: 12px;
+    }
+    .adm-tab {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--grey); font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+      padding: 10px 16px; border-bottom: 2px solid transparent;
+    }
+    .adm-tab:hover { color: var(--white); }
+    .adm-tab.is-on { color: var(--white); border-bottom-color: var(--red); }
+    .adm-panel { display: none; }
+    .adm-panel.is-on { display: block; }
+
+    /* gallery manager */
+    .gal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .gal-item { border: 1px solid var(--border); background: var(--card-bg); padding: 10px; }
+    .gal-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; margin-bottom: 8px; }
+    .gal-item input[type="text"] {
+      width: 100%; padding: 8px; margin-bottom: 6px; font-size: 11px;
+      background: var(--off-black); border: 1px solid var(--border); color: var(--white);
+      font-family: 'Space Mono', monospace;
+    }
+    .gal-row { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+    .gal-row label { font-size: 11px; color: var(--grey); display: flex; gap: 5px; align-items: center; }
+    .gal-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--light-grey);
+      cursor: pointer; padding: 4px 9px; font-size: 12px; line-height: 1;
+    }
+    .gal-btn:hover { border-color: var(--white); color: var(--white); }
+    .gal-btn.del:hover { border-color: var(--red); color: var(--red); }
 
     .subs-scroll { overflow-x: auto; }
     .subs { width: 100%; border-collapse: collapse; }
@@ -118,6 +152,19 @@
 
   <!-- ── EDITOR ── -->
   <div id="editor" class="hidden">
+
+    <nav class="adm-tabs" id="adm-tabs">
+      <button class="adm-tab is-on" data-tab="shows">Shows</button>
+      <button class="adm-tab" data-tab="shop">Shop</button>
+      <button class="adm-tab" data-tab="releases">Releases</button>
+      <button class="adm-tab" data-tab="gallery">Gallery</button>
+      <button class="adm-tab" data-tab="text">Page Text</button>
+      <button class="adm-tab" data-tab="list">Mailing List</button>
+      <button class="btn btn-outline" id="logout-btn" style="margin-left:auto;font-size:11px">Sign Out</button>
+    </nav>
+
+    <!-- ══ SHOWS ══ -->
+    <section class="adm-panel is-on" data-panel="shows">
     <div class="adm-bar">
       <div>
         <span id="count" class="adm-hint"></span>
@@ -126,14 +173,78 @@
       <div class="adm-actions" style="margin:0">
         <button id="add-btn" class="btn btn-outline">+ Add Show</button>
         <button id="save-btn" class="btn btn-primary">Save Changes</button>
-        <button id="logout-btn" class="btn btn-outline">Sign Out</button>
       </div>
     </div>
 
     <div id="list"></div>
 
-    <!-- ── MAILING LIST ── -->
-    <div style="margin-top:56px;padding-top:32px;border-top:1px solid var(--border)">
+    </section>
+
+    <!-- ══ SHOP ══ -->
+    <section class="adm-panel" data-panel="shop">
+      <div class="adm-bar">
+        <div><span id="shop-count" class="adm-hint"></span><div id="shop-msg" class="adm-hint"></div></div>
+        <div class="adm-actions" style="margin:0">
+          <button class="btn btn-outline" data-add="products">+ Add Product</button>
+          <button class="btn btn-primary" data-save="products">Save Shop</button>
+        </div>
+      </div>
+      <div id="shop-list"></div>
+      <p class="adm-hint" style="margin-top:20px">
+        Prices here are what Stripe actually charges — the shop page and the
+        checkout both read this same list, so they can't disagree.
+        Sizes are comma separated, e.g. <strong>S, M, L, XL, XXL</strong>.
+      </p>
+    </section>
+
+    <!-- ══ RELEASES ══ -->
+    <section class="adm-panel" data-panel="releases">
+      <div class="adm-bar">
+        <div><span id="releases-count" class="adm-hint"></span><div id="releases-msg" class="adm-hint"></div></div>
+        <div class="adm-actions" style="margin:0">
+          <button class="btn btn-outline" data-add="releases">+ Add Release</button>
+          <button class="btn btn-primary" data-save="releases">Save Releases</button>
+        </div>
+      </div>
+      <div id="releases-list"></div>
+      <p class="adm-hint" style="margin-top:20px">
+        Order here is the order on the homepage. The one with the ID
+        <strong>white-flag</strong> is hidden while it's the featured release
+        at the top of the page.
+      </p>
+    </section>
+
+    <!-- ══ GALLERY ══ -->
+    <section class="adm-panel" data-panel="gallery">
+      <div class="adm-bar">
+        <div><span id="gallery-count" class="adm-hint"></span><div id="gallery-msg" class="adm-hint"></div></div>
+        <div class="adm-actions" style="margin:0">
+          <label class="btn btn-outline" style="cursor:pointer;font-size:11px">
+            Upload Photo<input type="file" accept="image/*" id="gallery-upload" hidden>
+          </label>
+          <button class="btn btn-primary" data-save="gallery">Save Gallery</button>
+        </div>
+      </div>
+      <div id="gallery-list" class="gal-grid"></div>
+      <p class="adm-hint" style="margin-top:20px">
+        Tick <strong>Wide</strong> to make a photo span two columns. Use the
+        arrows to reorder — the homepage follows this order.
+      </p>
+    </section>
+
+    <!-- ══ PAGE TEXT ══ -->
+    <section class="adm-panel" data-panel="text">
+      <div class="adm-bar">
+        <div><span class="adm-hint">Homepage and shop wording</span><div id="content-msg" class="adm-hint"></div></div>
+        <div class="adm-actions" style="margin:0">
+          <button class="btn btn-primary" data-save="content">Save Text</button>
+        </div>
+      </div>
+      <div id="content-form"></div>
+    </section>
+
+    <!-- ══ MAILING LIST ══ -->
+    <section class="adm-panel" data-panel="list">
       <div class="adm-bar">
         <div>
           <h3 style="font-size:26px;margin-bottom:4px">Mailing List</h3>
@@ -153,18 +264,13 @@
         Newest first. Addresses are stored on the server outside the website
         folder, so nobody can reach them from a browser.
       </p>
-    </div>
+    </section>
 
-    <p class="adm-hint" style="margin-top:24px">
-      Shows appear on the homepage in date order. Anything already past is hidden
-      from visitors automatically, but stays here until you delete it.
-      Leave the price blank or put <strong>0</strong> for a free gig.
-    </p>
   </div>
 
 </div>
 
-<script src="assets/js/admin.js?v=10"></script>
+<script src="assets/js/admin.js?v=11"></script>
 
 </body>
 </html>

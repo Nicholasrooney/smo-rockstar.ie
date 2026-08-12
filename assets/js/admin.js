@@ -131,10 +131,380 @@
       });
   }
 
+
+  /* =================================================================
+     TABS
+     ================================================================= */
+  document.getElementById('adm-tabs') && document.getElementById('adm-tabs')
+    .addEventListener('click', function (e) {
+      var t = e.target.closest('.adm-tab');
+      if (!t) return;
+      document.querySelectorAll('.adm-tab').forEach(function (b) { b.classList.toggle('is-on', b === t); });
+      document.querySelectorAll('.adm-panel').forEach(function (p) {
+        p.classList.toggle('is-on', p.dataset.panel === t.dataset.tab);
+      });
+    });
+
+  /* =================================================================
+     SHOP / RELEASES / GALLERY / PAGE TEXT
+     All the same shape: load JSON, draw fields, post it back. The server
+     re-cleans every field on save, so nothing drawn here is trusted.
+     ================================================================= */
+  var DATA = { products: [], releases: [], gallery: [], content: {} };
+
+  /* Artwork and product shots — STOCK is band photos, meant for gigs. */
+  var EXTRA_IMAGES = [
+    'assets/images/release-white-flag.jpg',
+    'assets/images/release-lost-my-way.jpg',
+    'assets/images/release-war.jpg',
+    'assets/images/release-love-me-too.jpg',
+    'assets/images/release-celebrate-you.jpg',
+    'assets/images/tee-star-black.jpg',
+    'assets/images/tee-star-white.jpg',
+    'assets/images/tee-crowd-black.jpg',
+    'assets/images/og-image.jpg'
+  ];
+
+  function getData(type) {
+    return fetch(API + '?action=get-data&type=' + type + '&csrf=' + encodeURIComponent(csrf || ''))
+      .then(function (r) { return r.json(); })
+      .then(function (d) { DATA[type] = d.data || (type === 'content' ? {} : []); });
+  }
+
+  function saveData(type) {
+    var msg = $(type === 'products' ? 'shop-msg' : type + '-msg');
+    msg.innerHTML = '<span class="adm-hint">Saving...</span>';
+    var body = new FormData();
+    body.append('action', 'save-data');
+    body.append('type', type);
+    body.append('csrf', csrf);
+    body.append('json', JSON.stringify(DATA[type]));
+    fetch(API, { method: 'POST', body: body })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var j = null;
+          try { j = JSON.parse(t); } catch (e) { j = null; }
+          if (!j) throw new Error('Server did not reply with JSON.');
+          if (!r.ok) throw new Error(j.error || 'Save failed.');
+          return j;
+        });
+      })
+      .then(function () {
+        msg.innerHTML = '<span class="toast-ok">Saved - live on the site.</span>';
+        return getData(type).then(function () { drawers[type](); });
+      })
+      .catch(function (e) { msg.innerHTML = '<span class="toast-err">' + esc(e.message) + '</span>'; });
+  }
+
+  function inp(val, ph, oninput, type) {
+    var i = document.createElement('input');
+    i.type = type || 'text';
+    i.value = val == null ? '' : val;
+    if (ph) i.placeholder = ph;
+    i.addEventListener('input', function () { oninput(i.value); });
+    return i;
+  }
+  function group(label, el) {
+    var d = document.createElement('div');
+    d.className = 'form-group';
+    var l = document.createElement('label');
+    l.textContent = label;
+    d.appendChild(l); d.appendChild(el);
+    return d;
+  }
+  function card() { var d = document.createElement('div'); d.className = 'adm-card'; return d; }
+  function row() { var d = document.createElement('div'); d.className = 'adm-row'; return d; }
+
+  /* Pick from photos already on the site so editors never need to know
+     where anything is stored. */
+  function imagePicker(label, current, onpick) {
+    var wrap = document.createElement('div');
+    wrap.className = 'form-group';
+    var l = document.createElement('label'); l.textContent = label;
+    wrap.appendChild(l);
+    if (current) {
+      var prev = document.createElement('img');
+      prev.src = current;
+      prev.style.cssText = 'width:96px;height:96px;object-fit:cover;display:block;margin-bottom:8px;border:1px solid var(--border)';
+      wrap.appendChild(prev);
+    }
+    var pick = document.createElement('div'); pick.className = 'pick';
+    STOCK.concat(EXTRA_IMAGES).forEach(function (src) {
+      var im = document.createElement('img');
+      im.src = src; im.alt = '';
+      if (src === current) im.className = 'on';
+      im.onclick = function () { onpick(src); };
+      pick.appendChild(im);
+    });
+    wrap.appendChild(pick);
+    return wrap;
+  }
+
+  /* ---- shop ---- */
+  function drawShop() {
+    var host = $('shop-list'); if (!host) return;
+    host.innerHTML = '';
+    $('shop-count').textContent = DATA.products.length +
+      (DATA.products.length === 1 ? ' product' : ' products');
+
+    DATA.products.forEach(function (p, i) {
+      var c = card();
+      var r1 = row();
+      r1.appendChild(group('Product name *', inp(p.title, 'Star Logo Tee', function (v) { p.title = v; })));
+      r1.appendChild(group('Price (EUR) *', inp(
+        (p.priceCents != null ? (p.priceCents / 100) : ''), '25',
+        function (v) { p.price = v; p.priceCents = Math.round(parseFloat(v || 0) * 100); }, 'number')));
+      c.appendChild(r1);
+
+      var r2 = row();
+      r2.appendChild(group('Sizes (comma separated)', inp(
+        (p.sizes || []).join(', '), 'S, M, L, XL, XXL',
+        function (v) { p.sizes = v.split(',').map(function (x) { return x.trim(); }).filter(Boolean); })));
+      r2.appendChild(group('ID (leave alone unless new)', inp(p.id, 'smo-tee-...', function (v) { p.id = v; })));
+      c.appendChild(r2);
+
+      c.appendChild(group('Description', inp(p.description, 'Heavyweight cotton. Screen printed.', function (v) { p.description = v; })));
+      c.appendChild(imagePicker('Product photo', p.image, function (v) { p.image = v; drawShop(); }));
+
+      var acts = document.createElement('div'); acts.className = 'adm-actions';
+      var del = document.createElement('button');
+      del.className = 'btn btn-danger'; del.style.fontSize = '11px'; del.textContent = 'Delete product';
+      del.onclick = function () {
+        if (!confirm('Delete "' + (p.title || 'this product') + '"? It leaves the shop when you save.')) return;
+        DATA.products.splice(i, 1); drawShop();
+      };
+      acts.appendChild(del);
+      c.appendChild(acts);
+      host.appendChild(c);
+    });
+
+    if (!DATA.products.length) {
+      host.innerHTML = '<div class="adm-empty">No products. Hit <strong>+ Add Product</strong>.</div>';
+    }
+  }
+
+  /* ---- releases ---- */
+  function drawReleases() {
+    var host = $('releases-list'); if (!host) return;
+    host.innerHTML = '';
+    $('releases-count').textContent = DATA.releases.length +
+      (DATA.releases.length === 1 ? ' release' : ' releases');
+
+    DATA.releases.forEach(function (rel, i) {
+      var c = card();
+      var r1 = row();
+      r1.appendChild(group('Title *', inp(rel.title, 'White Flag', function (v) { rel.title = v; })));
+      r1.appendChild(group('Detail line', inp(rel.meta, 'Single 2026', function (v) { rel.meta = v; })));
+      c.appendChild(r1);
+
+      var r2 = row();
+      r2.appendChild(group('Listen link', inp(rel.link, 'https://...', function (v) { rel.link = v; })));
+      r2.appendChild(group('Link button text', inp(rel.linkLabel, 'Spotify', function (v) { rel.linkLabel = v; })));
+      c.appendChild(r2);
+
+      c.appendChild(group('YouTube link', inp(rel.youtube, 'https://youtube.com/...', function (v) { rel.youtube = v; })));
+      c.appendChild(imagePicker('Artwork', rel.image, function (v) { rel.image = v; drawReleases(); }));
+
+      var acts = document.createElement('div'); acts.className = 'adm-actions';
+      var up = document.createElement('button'); up.className = 'gal-btn'; up.textContent = 'Move up';
+      up.onclick = function () {
+        if (i > 0) { var t = DATA.releases[i - 1]; DATA.releases[i - 1] = rel; DATA.releases[i] = t; drawReleases(); }
+      };
+      var dn = document.createElement('button'); dn.className = 'gal-btn'; dn.textContent = 'Move down';
+      dn.onclick = function () {
+        if (i < DATA.releases.length - 1) { var t = DATA.releases[i + 1]; DATA.releases[i + 1] = rel; DATA.releases[i] = t; drawReleases(); }
+      };
+      var del = document.createElement('button');
+      del.className = 'btn btn-danger'; del.style.fontSize = '11px'; del.textContent = 'Delete release';
+      del.onclick = function () {
+        if (!confirm('Delete "' + (rel.title || 'this release') + '"?')) return;
+        DATA.releases.splice(i, 1); drawReleases();
+      };
+      acts.appendChild(up); acts.appendChild(dn); acts.appendChild(del);
+      c.appendChild(acts);
+      host.appendChild(c);
+    });
+  }
+
+  /* ---- gallery ---- */
+  function drawGallery() {
+    var host = $('gallery-list'); if (!host) return;
+    host.innerHTML = '';
+    $('gallery-count').textContent = DATA.gallery.length +
+      (DATA.gallery.length === 1 ? ' photo' : ' photos');
+
+    DATA.gallery.forEach(function (g, i) {
+      var d = document.createElement('div'); d.className = 'gal-item';
+      var im = document.createElement('img'); im.src = g.src; im.alt = '';
+      d.appendChild(im);
+      d.appendChild(inp(g.alt, 'Describe the photo', function (v) { g.alt = v; }));
+
+      var r = document.createElement('div'); r.className = 'gal-row';
+      var lab = document.createElement('label');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!g.wide;
+      cb.onchange = function () { g.wide = cb.checked; };
+      lab.appendChild(cb); lab.appendChild(document.createTextNode('Wide'));
+
+      var btns = document.createElement('span');
+      var up = document.createElement('button'); up.className = 'gal-btn'; up.textContent = '<';
+      up.onclick = function () {
+        if (i > 0) { var t = DATA.gallery[i - 1]; DATA.gallery[i - 1] = g; DATA.gallery[i] = t; drawGallery(); }
+      };
+      var dn = document.createElement('button'); dn.className = 'gal-btn'; dn.textContent = '>';
+      dn.onclick = function () {
+        if (i < DATA.gallery.length - 1) { var t = DATA.gallery[i + 1]; DATA.gallery[i + 1] = g; DATA.gallery[i] = t; drawGallery(); }
+      };
+      var del = document.createElement('button'); del.className = 'gal-btn del'; del.textContent = 'x';
+      del.onclick = function () { DATA.gallery.splice(i, 1); drawGallery(); };
+      btns.appendChild(up); btns.appendChild(dn); btns.appendChild(del);
+
+      r.appendChild(lab); r.appendChild(btns);
+      d.appendChild(r);
+      host.appendChild(d);
+    });
+
+    if (!DATA.gallery.length) {
+      host.innerHTML = '<div class="adm-empty">No photos yet. Use <strong>Upload Photo</strong>.</div>';
+    }
+  }
+
+  /* ---- page text ---- */
+  function drawContent() {
+    var host = $('content-form'); if (!host) return;
+    var c = DATA.content || {};
+    c.hero = c.hero || {}; c.about = c.about || {}; c.shopPreview = c.shopPreview || {};
+    c.mailingList = c.mailingList || {}; c.shopPage = c.shopPage || {};
+    c.about.paragraphs = c.about.paragraphs || [];
+    c.about.stats = c.about.stats || [];
+    c.ticker = c.ticker || [];
+    DATA.content = c;
+    host.innerHTML = '';
+
+    function section(title, build) {
+      var k = card();
+      var h = document.createElement('h3');
+      h.textContent = title; h.style.marginBottom = '14px';
+      k.appendChild(h); build(k); host.appendChild(k);
+    }
+
+    section('Hero (top of homepage)', function (k) {
+      k.appendChild(group('Small line above SMO', inp(c.hero.eyebrow, 'Dublin, Ireland', function (v) { c.hero.eyebrow = v; })));
+      k.appendChild(group('Strapline', inp(c.hero.sub, '', function (v) { c.hero.sub = v; })));
+    });
+
+    section('Scrolling ticker', function (k) {
+      k.appendChild(group('Items (comma separated)', inp(c.ticker.join(', '), 'Song, Song, Venue',
+        function (v) { c.ticker = v.split(',').map(function (x) { return x.trim(); }).filter(Boolean); })));
+    });
+
+    section('About section', function (k) {
+      var r1 = row();
+      r1.appendChild(group('Kicker', inp(c.about.kicker, 'The Band', function (v) { c.about.kicker = v; })));
+      r1.appendChild(group('Heading', inp(c.about.heading, 'Raw Sound.', function (v) { c.about.heading = v; })));
+      k.appendChild(r1);
+
+      c.about.paragraphs.forEach(function (_, i) {
+        var g = group('Paragraph ' + (i + 1), inp(c.about.paragraphs[i], '', function (v) { c.about.paragraphs[i] = v; }));
+        var x = document.createElement('button');
+        x.className = 'gal-btn del'; x.textContent = 'Remove'; x.style.marginTop = '6px';
+        x.onclick = function () { c.about.paragraphs.splice(i, 1); drawContent(); };
+        g.appendChild(x);
+        k.appendChild(g);
+      });
+      var add = document.createElement('button');
+      add.className = 'btn btn-outline'; add.style.fontSize = '11px'; add.textContent = '+ Add paragraph';
+      add.onclick = function () { c.about.paragraphs.push(''); drawContent(); };
+      k.appendChild(add);
+
+      var sh = document.createElement('p');
+      sh.className = 'adm-hint'; sh.textContent = 'The three figures under the About text';
+      sh.style.margin = '20px 0 8px';
+      k.appendChild(sh);
+      c.about.stats.forEach(function (st) {
+        var r2 = row();
+        r2.appendChild(group('Figure', inp(st.num, '3K+', function (v) { st.num = v; })));
+        r2.appendChild(group('Label', inp(st.label, 'Monthly Listeners', function (v) { st.label = v; })));
+        k.appendChild(r2);
+      });
+    });
+
+    section('Merch block (homepage)', function (k) {
+      var r1 = row();
+      r1.appendChild(group('Kicker', inp(c.shopPreview.kicker, 'Merch', function (v) { c.shopPreview.kicker = v; })));
+      r1.appendChild(group('Heading', inp(c.shopPreview.heading, 'Wear', function (v) { c.shopPreview.heading = v; })));
+      k.appendChild(r1);
+      k.appendChild(group('Text', inp(c.shopPreview.text, '', function (v) { c.shopPreview.text = v; })));
+      k.appendChild(group('Price shown', inp(c.shopPreview.price, '25', function (v) { c.shopPreview.price = v; })));
+    });
+
+    section('Mailing list block', function (k) {
+      var r1 = row();
+      r1.appendChild(group('Kicker', inp(c.mailingList.kicker, 'Mailing List', function (v) { c.mailingList.kicker = v; })));
+      r1.appendChild(group('Heading', inp(c.mailingList.heading, 'Know First.', function (v) { c.mailingList.heading = v; })));
+      k.appendChild(r1);
+      k.appendChild(group('Text', inp(c.mailingList.text, '', function (v) { c.mailingList.text = v; })));
+    });
+
+    section('Shop page', function (k) {
+      var r1 = row();
+      r1.appendChild(group('Kicker', inp(c.shopPage.kicker, 'Official Merch', function (v) { c.shopPage.kicker = v; })));
+      r1.appendChild(group('Heading', inp(c.shopPage.heading, 'The Shop', function (v) { c.shopPage.heading = v; })));
+      k.appendChild(r1);
+      k.appendChild(group('Postage note', inp(c.shopPage.shippingNote, '', function (v) { c.shopPage.shippingNote = v; })));
+    });
+  }
+
+  var drawers = { products: drawShop, releases: drawReleases, gallery: drawGallery, content: drawContent };
+
+  document.querySelectorAll('[data-add]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.dataset.add;
+      if (t === 'products') {
+        DATA.products.push({ id: '', title: '', priceCents: 2500, sizes: ['S', 'M', 'L', 'XL', 'XXL'], image: '', alt: '', description: '' });
+      }
+      if (t === 'releases') {
+        DATA.releases.push({ id: '', title: '', meta: '', image: '', link: '', linkLabel: 'Spotify', youtube: '' });
+      }
+      drawers[t]();
+    });
+  });
+
+  document.querySelectorAll('[data-save]').forEach(function (b) {
+    b.addEventListener('click', function () { saveData(b.dataset.save); });
+  });
+
+  var galUp = $('gallery-upload');
+  if (galUp) {
+    galUp.addEventListener('change', function () {
+      var f = this.files && this.files[0];
+      if (!f) return;
+      var msg = $('gallery-msg');
+      msg.innerHTML = '<span class="adm-hint">Uploading...</span>';
+      var body = new FormData();
+      body.append('action', 'upload'); body.append('csrf', csrf); body.append('photo', f);
+      fetch(API, { method: 'POST', body: body })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error); return j; }); })
+        .then(function (j) {
+          DATA.gallery.push({ src: j.path, alt: '', wide: false });
+          drawGallery();
+          msg.innerHTML = '<span class="adm-hint">Added - now press Save Gallery.</span>';
+        })
+        .catch(function (e) { msg.innerHTML = '<span class="toast-err">' + esc(e.message) + '</span>'; });
+      this.value = '';
+    });
+  }
+
+  function loadEverything() {
+    ['products', 'releases', 'gallery', 'content'].forEach(function (t) {
+      getData(t).then(function () { drawers[t](); }).catch(function () {});
+    });
+  }
+
   /* ── editor ───────────────────────────────────────────── */
   function openEditor() {
     show('editor');
     loadSubs();
+    loadEverything();
     fetch(API + '?action=list').then(function (r) { return r.json(); }).then(function (d) {
       shows = d.shows || [];
       render();

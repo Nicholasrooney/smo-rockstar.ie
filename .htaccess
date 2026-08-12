@@ -1,0 +1,30 @@
+# SMO — keep the public URLs while the pages become PHP templates.
+#
+# index.html and shop.html are now index.php / shop.php so their content can be
+# rendered from data/ on the server (Google reads real HTML; a browser-rendered
+# page would look empty to it). This rewrite means every existing link, bookmark
+# and search result pointing at /shop.html still works and still shows
+# /shop.html in the address bar — nothing needs redirecting and no canonical
+# changes.
+#
+# The !-f condition means a real .html file always wins, so pages still served
+# as plain HTML (legal, checkout, success, admin) are untouched.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.+)\.html$ $1.php [L]
+</IfModule>
+
+# Everything in data/ is public by design — shows, products, releases, gallery
+# and site copy are all things the site displays anyway. The things that must
+# never be readable (subscriber addresses, order logs, the Stripe key and the
+# admin password) live OUTSIDE the web root, which is the actual protection.
+# This only blocks stray .log files if one is ever written in here by mistake.
+<FilesMatch "\.log$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Deny from all
+  </IfModule>
+</FilesMatch>

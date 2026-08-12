@@ -1,3 +1,4 @@
+<?php require __DIR__ . '/content.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
   <meta property="og:description" content="Dublin alt-rock. Catch us live.">
   <meta property="og:image" content="assets/images/og-image.jpg">
   <link rel="canonical" href="https://smo-rockstar.ie/">
-  <link rel="stylesheet" href="assets/css/style.css?v=10">
+  <link rel="stylesheet" href="assets/css/style.css?v=11">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -34,6 +35,7 @@
   </ul>
 </nav>
 
+
 <!-- ── HERO ── -->
 <section class="hero">
   <!-- Background video. Muted + playsinline are what let it autoplay on
@@ -45,9 +47,9 @@
   </video>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">Dublin, Ireland</div>
+    <div class="hero-eyebrow"><?= h(smo_text('hero.eyebrow', 'Dublin, Ireland')) ?></div>
     <h1>SMO<span class="outline">.</span></h1>
-    <p class="hero-sub">Alt-rock & indie from the heart of Dublin. Loud nights, honest songs.</p>
+    <p class="hero-sub"><?= h(smo_text('hero.sub', '')) ?></p>
     <div class="hero-actions">
       <a href="#shows" class="btn btn-primary">Upcoming Shows</a>
       <a href="#music" class="btn btn-outline">Listen Now</a>
@@ -58,29 +60,20 @@
 <!-- ── TICKER ── -->
 <div class="ticker">
   <div class="ticker-inner">
-    <span>Lost My Way</span><span class="sep">★</span>
-    <span>War</span><span class="sep">★</span>
-    <span>Love Me Too</span><span class="sep">★</span>
-    <span>Celebrate You</span><span class="sep">★</span>
-    <span>Listen</span><span class="sep">★</span>
-    <span>Grand Social Dublin</span><span class="sep">★</span>
-    <span>Whelans Dublin</span><span class="sep">★</span>
-    <!-- duplicate for seamless loop -->
-    <span>Lost My Way</span><span class="sep">★</span>
-    <span>War</span><span class="sep">★</span>
-    <span>Love Me Too</span><span class="sep">★</span>
-    <span>Celebrate You</span><span class="sep">★</span>
-    <span>Listen</span><span class="sep">★</span>
-    <span>Grand Social Dublin</span><span class="sep">★</span>
-    <span>Whelans Dublin</span><span class="sep">★</span>
+<?php $tick = smo_arr('ticker'); if ($tick):
+        /* printed twice so the marquee loops without a visible seam */
+        for ($pass = 0; $pass < 2; $pass++):
+          foreach ($tick as $t): ?>
+    <span><?= h($t) ?></span><span class="sep">&#9733;</span>
+<?php   endforeach;
+        endfor;
+      endif; ?>
   </div>
 </div>
 
 <!-- ── FEATURED RELEASE ──
      Sits near the top while a release is new. FEATURED_RELEASE in main.js
-     decides: it hides itself a week after the release date and the track
-     drops into the normal Releases grid below, so nobody has to remember
-     to come back and demote it. -->
+     decides when it retires; the same track then appears in the grid below. -->
 <section class="featured hidden" id="featured-release">
   <div class="featured-grid">
     <div class="featured-art">
@@ -104,28 +97,25 @@
 <section id="about">
   <div class="about-grid">
     <div class="about-images">
-      <img src="assets/images/about-main.jpg" alt="Sam of SMO playing live" class="about-img-main">
-      <img src="assets/images/about-accent.jpg" alt="SMO under red stage lights" class="about-img-accent">
+      <img src="<?= h(smo_text('about.imageMain', 'assets/images/about-main.jpg')) ?>" alt="Sam of SMO playing live" class="about-img-main">
+      <img src="<?= h(smo_text('about.imageAccent', 'assets/images/about-accent.jpg')) ?>" alt="SMO live" class="about-img-accent">
     </div>
     <div class="about-text">
-      <span class="section-label">The Band</span>
-      <h2>Raw Sound.<br>Real Energy.</h2>
-      <p>SMO is Sam and the band — a full-tilt alt-rock outfit out of Dublin. Equal parts swagger and sincerity, they've been turning heads at venues across the capital with a sound that hits before you've even settled in.</p>
-      <p>From late nights at the Grand Social to packed floors at Whelans, the SMO live show is built to be felt. New releases dropping constantly — the story's only getting started.</p>
+      <span class="section-label"><?= h(smo_text('about.kicker', 'The Band')) ?></span>
+      <h2><?= h_lines(smo_text('about.heading', "Raw Sound.\nReal Energy.")) ?></h2>
+<?php foreach (smo_arr('about.paragraphs') as $para): ?>
+      <p><?= h($para) ?></p>
+<?php endforeach; ?>
+<?php $stats = smo_arr('about.stats'); if ($stats): ?>
       <div class="stat-row">
+<?php foreach ($stats as $s): ?>
         <div class="stat-item">
-          <div class="num">3K+</div>
-          <div class="lbl">Monthly Listeners</div>
+          <div class="num"><?= h($s['num'] ?? '') ?></div>
+          <div class="lbl"><?= h($s['label'] ?? '') ?></div>
         </div>
-        <div class="stat-item">
-          <div class="num">5+</div>
-          <div class="lbl">Releases</div>
-        </div>
-        <div class="stat-item">
-          <div class="num">DUB</div>
-          <div class="lbl">Based in Dublin</div>
-        </div>
+<?php endforeach; ?>
       </div>
+<?php endif; ?>
     </div>
   </div>
 </section>
@@ -148,85 +138,26 @@
     <h2>Latest<br>Releases</h2>
   </div>
   <div class="releases-grid">
-
-    <!-- White Flag also lives here. Hidden while it is the featured
-         release above; main.js reveals it once the feature retires, so
-         the track is never missing from the list. -->
-    <div class="release-card hidden" id="white-flag-card">
+<?php foreach (smo_json('releases') as $r):
+        $isFeatured = ($r['id'] ?? '') === 'white-flag';
+        $link = $r['link'] ?? '#'; ?>
+    <div class="release-card<?= $isFeatured ? ' hidden' : '' ?>"<?= $isFeatured ? ' id="white-flag-card"' : '' ?>>
       <div class="release-artwork">
-        <img src="assets/images/release-white-flag.jpg" alt="White Flag" loading="lazy">
+        <img src="<?= h($r['image'] ?? '') ?>" alt="<?= h($r['title'] ?? '') ?>" loading="lazy">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
-        <h3><a class="release-link" href="https://ditto.fm/white-flag-smo" target="_blank" rel="noopener">White Flag</a></h3>
-        <div class="meta">Single · 2026</div>
+        <h3><a class="release-link" href="<?= h($link) ?>" target="_blank" rel="noopener"><?= h($r['title'] ?? '') ?></a></h3>
+        <div class="meta"><?= h($r['meta'] ?? '') ?></div>
         <div class="release-links">
-          <a href="https://ditto.fm/white-flag-smo" target="_blank" rel="noopener">Listen</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
+          <a href="<?= h($link) ?>" target="_blank" rel="noopener"><?= h($r['linkLabel'] ?? 'Listen') ?></a>
+<?php if (!empty($r['youtube'])): ?>
+          <a href="<?= h($r['youtube']) ?>" target="_blank" rel="noopener">YouTube</a>
+<?php endif; ?>
         </div>
       </div>
     </div>
-
-    <div class="release-card">
-      <div class="release-artwork">
-        <img src="assets/images/release-lost-my-way.jpg" alt="Lost My Way">
-        <div class="play-icon">▶</div>
-      </div>
-      <div class="release-info">
-        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Lost My Way</a></h3>
-        <div class="meta">Single · 2025</div>
-        <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="release-card">
-      <div class="release-artwork">
-        <img src="assets/images/release-war.jpg" alt="War">
-        <div class="play-icon">▶</div>
-      </div>
-      <div class="release-info">
-        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">War</a></h3>
-        <div class="meta">Single · 2025</div>
-        <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="release-card">
-      <div class="release-artwork">
-        <img src="assets/images/release-love-me-too.jpg" alt="Love Me Too">
-        <div class="play-icon">▶</div>
-      </div>
-      <div class="release-info">
-        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Love Me Too</a></h3>
-        <div class="meta">Single · 2025</div>
-        <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="release-card">
-      <div class="release-artwork">
-        <img src="assets/images/release-celebrate-you.jpg" alt="Celebrate You">
-        <div class="play-icon">▶</div>
-      </div>
-      <div class="release-info">
-        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Celebrate You</a></h3>
-        <div class="meta">Single · 2025</div>
-        <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
-        </div>
-      </div>
-    </div>
-
+<?php endforeach; ?>
   </div>
 
   <div style="text-align:center;margin-top:48px">
@@ -235,16 +166,11 @@
 </section>
 
 <!-- ── MAILING LIST ── -->
-<!-- Sits straight after the music: someone who's just listened is the most
-     likely person on the page to want the next release in their inbox. -->
 <section class="signup" id="mailing-list">
   <div class="signup-inner">
-    <span class="section-label">Mailing List</span>
-    <h2>Know First.</h2>
-    <p class="signup-blurb">
-      New releases, gig announcements and merch drops, straight to you.
-      No spam, and one click to get off the list.
-    </p>
+    <span class="section-label"><?= h(smo_text('mailingList.kicker', 'Mailing List')) ?></span>
+    <h2><?= h_lines(smo_text('mailingList.heading', 'Know First.')) ?></h2>
+    <p class="signup-blurb"><?= h(smo_text('mailingList.text', '')) ?></p>
 
     <form id="signup-form" class="signup-form" novalidate>
       <div class="signup-row">
@@ -268,14 +194,9 @@
 <!-- ── GALLERY ── -->
 <section style="padding-top:0">
   <div class="gallery-grid">
-    <img src="assets/images/gallery-night.jpg" alt="Sam of SMO at night" class="wide" loading="lazy">
-    <img src="assets/images/gallery-guitar.jpg" alt="SMO live on guitar" loading="lazy">
-    <img src="assets/images/gallery-duo.jpg" alt="SMO on stage" loading="lazy">
-    <img src="assets/images/gallery-piano.jpg" alt="Piano" loading="lazy">
-    <img src="assets/images/gallery-vocal.jpg" alt="SMO performing" loading="lazy">
-    <img src="assets/images/gallery-band.jpg" alt="SMO band on stage" class="wide" loading="lazy">
-    <img src="assets/images/gallery-acoustic.jpg" alt="SMO acoustic set" loading="lazy">
-    <img src="assets/images/gallery-star.jpg" alt="SMO star backdrop live" loading="lazy">
+<?php foreach (smo_json('gallery') as $g): ?>
+    <img src="<?= h($g['src'] ?? '') ?>" alt="<?= h($g['alt'] ?? '') ?>"<?= !empty($g['wide']) ? ' class="wide"' : '' ?> loading="lazy">
+<?php endforeach; ?>
   </div>
 </section>
 
@@ -283,18 +204,17 @@
 <section class="shop-preview">
   <div class="shop-preview-grid">
     <div class="shop-preview-img">
-      <img src="assets/images/tee-star-black.jpg" alt="SMO star logo t-shirt" loading="lazy">
+      <img src="<?= h(smo_text('shopPreview.image', 'assets/images/tee-star-black.jpg')) ?>" alt="SMO t-shirt" loading="lazy">
     </div>
     <div class="shop-preview-text">
-      <span class="section-label">Merch</span>
-      <h2>Wear<br>The Star</h2>
-      <p>Three official SMO tees — the star logo in yellow on black, in red on white, and the red crowd print. Heavyweight cotton, screen printed, sizes S–XXL.</p>
-      <div class="price-tag">€25</div>
+      <span class="section-label"><?= h(smo_text('shopPreview.kicker', 'Merch')) ?></span>
+      <h2><?= h_lines(smo_text('shopPreview.heading', "Wear\nThe Star")) ?></h2>
+      <p><?= h(smo_text('shopPreview.text', '')) ?></p>
+      <div class="price-tag"><?= h(smo_text('shopPreview.price', '€25')) ?></div>
       <a href="shop.html" class="btn btn-primary">Shop Now</a>
     </div>
   </div>
 </section>
-
 <!-- ── FOOTER ── -->
 <footer>
   <div class="footer-top">
@@ -336,8 +256,8 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=10"></script>
-<script src="assets/js/cookie-consent.js?v=10" defer></script>
+<script type="module" src="assets/js/main.js?v=11"></script>
+<script src="assets/js/cookie-consent.js?v=11" defer></script>
 
 </body>
 </html>

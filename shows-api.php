@@ -17,6 +17,7 @@
    file exists the admin stays locked and says so.
    ========================================================= */
 
+require_once __DIR__ . '/content.php';   // smo_cut() + shared helpers
 session_start();
 header('Content-Type: application/json');
 
@@ -138,11 +139,11 @@ if ($action === 'save') {
 
         $clean[] = [
             'id'         => preg_replace('/[^a-z0-9-]/i', '', (string)($s['id'] ?? '')) ?: bin2hex(random_bytes(8)),
-            'name'       => mb_substr($name, 0, 120),
-            'venue'      => mb_substr(trim((string)($s['venue'] ?? '')), 0, 160),
-            'date'       => mb_substr($date, 0, 32),
-            'price'      => mb_substr(trim((string)($s['price'] ?? '')), 0, 16),
-            'ticketLink' => mb_substr($link, 0, 400),
+            'name'       => smo_cut($name, 120),
+            'venue'      => smo_cut(trim((string)($s['venue'] ?? '')), 160),
+            'date'       => smo_cut($date, 32),
+            'price'      => smo_cut(trim((string)($s['price'] ?? '')), 16),
+            'ticketLink' => smo_cut($link, 400),
             'photos'     => $photos,
         ];
     }
@@ -159,6 +160,150 @@ if ($action === 'save') {
     if ($ok === false) fail('Could not write data/shows.json — check folder permissions on the server.', 500);
 
     echo json_encode(['ok' => true, 'count' => count($clean)]);
+    exit;
+}
+
+/* ---- site content: products, releases, gallery, page copy ----
+   One endpoint for the collections the admin edits. Everything is rebuilt
+   field by field rather than written as posted: these files are rendered
+   straight into the public pages, so anything unexpected in them would end
+   up in the HTML. Image paths must point inside assets/ — no remote URLs,
+   no traversal. */
+if ($action === 'get-data' || $action === 'save-data') {
+    $type = (string)($_POST['type'] ?? $_GET['type'] ?? '');
+    if (!in_array($type, ['products', 'releases', 'gallery', 'content'], true)) {
+        fail('Unknown content type.');
+    }
+    $file = __DIR__ . '/data/' . $type . '.json';
+
+    if ($action === 'get-data') {
+        $d = is_file($file) ? json_decode((string)file_get_contents($file), true) : null;
+        echo json_encode(['data' => $d ?: ($type === 'content' ? new stdClass : [])]);
+        exit;
+    }
+
+    $in = json_decode((string)($_POST['json'] ?? ''), true);
+    if (!is_array($in)) fail('Bad data.');
+
+    /* Only our own images, and nothing that climbs out of assets/. */
+    $img = function ($v) {
+        $v = trim((string)$v);
+        return (preg_match('#^assets/[A-Za-z0-9._/-]+\.(jpg|jpeg|png|webp)$#i', $v) && strpos($v, '..') === false)
+            ? $v : '';
+    };
+    $url = function ($v) {
+        $v = trim((string)$v);
+        if ($v === '') return '';
+        if (!preg_match('#^https?://#i', $v)) $v = 'https://' . $v;
+        return smo_cut($v, 400);
+    };
+    $txt = function ($v, $max = 400) { return smo_cut(trim((string)$v), $max); };
+
+    $clean = [];
+    $problems = [];
+
+    if ($type === 'products') {
+        foreach ($in as $n => $p) {
+            $title = $txt($p['title'] ?? '', 120);
+            if ($title === '') { $problems[] = 'Product ' . ($n + 1) . ' has no name.'; continue; }
+            $cents = (int)round((float)($p['price'] ?? 0) * 100);
+            if ($cents <= 0) { $problems[] = '"' . $title . '" needs a price above zero.'; continue; }
+            $id = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($p['id'] ?? '')));
+            if ($id === '') $id = 'item-' . bin2hex(random_bytes(4));
+            $sizes = [];
+            foreach ((array)($p['sizes'] ?? []) as $s) {
+                $s = strtoupper($txt($s, 8));
+                if ($s !== '' && count($sizes) < 12) $sizes[] = $s;
+            }
+            $clean[] = [
+                'id' => $id, 'title' => $title, 'priceCents' => $cents, 'sizes' => $sizes,
+                'image' => $img($p['image'] ?? ''), 'alt' => $txt($p['alt'] ?? $title, 160),
+                'description' => $txt($p['description'] ?? '', 600),
+            ];
+        }
+        /* A duplicate id would make two products share a price at checkout. */
+        $ids = array_column($clean, 'id');
+        if (count($ids) !== count(array_unique($ids))) $problems[] = 'Two products have the same ID.';
+    }
+
+    if ($type === 'releases') {
+        foreach ($in as $n => $r) {
+            $title = $txt($r['title'] ?? '', 120);
+            if ($title === '') { $problems[] = 'Release ' . ($n + 1) . ' has no title.'; continue; }
+            $id = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($r['id'] ?? '')));
+            if ($id === '') $id = preg_replace('/[^a-z0-9]+/', '-', strtolower($title));
+            $clean[] = [
+                'id' => trim($id, '-') ?: 'release-' . bin2hex(random_bytes(3)),
+                'title' => $title,
+                'meta' => $txt($r['meta'] ?? '', 60),
+                'image' => $img($r['image'] ?? ''),
+                'link' => $url($r['link'] ?? ''),
+                'linkLabel' => $txt($r['linkLabel'] ?? 'Listen', 20) ?: 'Listen',
+                'youtube' => $url($r['youtube'] ?? ''),
+            ];
+        }
+    }
+
+    if ($type === 'gallery') {
+        foreach ($in as $g) {
+            $src = $img($g['src'] ?? '');
+            if ($src === '') continue;              // a photo with no file is nothing
+            $clean[] = ['src' => $src, 'alt' => $txt($g['alt'] ?? '', 160), 'wide' => !empty($g['wide'])];
+        }
+    }
+
+    if ($type === 'content') {
+        $strs = function ($a, $max = 600) use ($txt) {
+            $o = [];
+            foreach ((array)$a as $v) { $v = $txt($v, $max); if ($v !== '') $o[] = $v; }
+            return $o;
+        };
+        $clean = [
+            'hero' => [
+                'eyebrow' => $txt($in['hero']['eyebrow'] ?? '', 80),
+                'sub'     => $txt($in['hero']['sub'] ?? '', 300),
+            ],
+            'ticker' => array_slice($strs($in['ticker'] ?? [], 60), 0, 20),
+            'about' => [
+                'kicker'      => $txt($in['about']['kicker'] ?? '', 60),
+                'heading'     => $txt($in['about']['heading'] ?? '', 120),
+                'paragraphs'  => array_slice($strs($in['about']['paragraphs'] ?? [], 1200), 0, 6),
+                'stats'       => [],
+                'imageMain'   => $img($in['about']['imageMain'] ?? ''),
+                'imageAccent' => $img($in['about']['imageAccent'] ?? ''),
+            ],
+            'shopPreview' => [
+                'kicker'  => $txt($in['shopPreview']['kicker'] ?? '', 60),
+                'heading' => $txt($in['shopPreview']['heading'] ?? '', 120),
+                'text'    => $txt($in['shopPreview']['text'] ?? '', 600),
+                'price'   => $txt($in['shopPreview']['price'] ?? '', 20),
+                'image'   => $img($in['shopPreview']['image'] ?? ''),
+            ],
+            'mailingList' => [
+                'kicker'  => $txt($in['mailingList']['kicker'] ?? '', 60),
+                'heading' => $txt($in['mailingList']['heading'] ?? '', 120),
+                'text'    => $txt($in['mailingList']['text'] ?? '', 600),
+            ],
+            'shopPage' => [
+                'kicker'       => $txt($in['shopPage']['kicker'] ?? '', 60),
+                'heading'      => $txt($in['shopPage']['heading'] ?? '', 120),
+                'shippingNote' => $txt($in['shopPage']['shippingNote'] ?? '', 600),
+            ],
+        ];
+        foreach ((array)($in['about']['stats'] ?? []) as $s) {
+            $num = $txt($s['num'] ?? '', 12);
+            if ($num === '') continue;
+            $clean['about']['stats'][] = ['num' => $num, 'label' => $txt($s['label'] ?? '', 60)];
+        }
+    }
+
+    if ($problems) fail(implode(' ', $problems), 422);
+
+    if (!is_dir(dirname($file))) @mkdir(dirname($file), 0755, true);
+    $ok = @file_put_contents($file, json_encode($clean, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    if ($ok === false) fail('Could not write data/' . $type . '.json — check folder permissions.', 500);
+
+    echo json_encode(['ok' => true, 'count' => is_array($clean) ? count($clean) : 1]);
     exit;
 }
 

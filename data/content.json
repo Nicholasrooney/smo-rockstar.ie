@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "eyebrow": "Dublin, Ireland",
+    "sub": "Alt-rock & indie from the heart of Dublin. Loud nights, honest songs."
+  },
+  "ticker": [
+    "Lost My Way",
+    "War",
+    "Love Me Too",
+    "Celebrate You",
+    "Listen",
+    "Grand Social Dublin",
+    "Whelans Dublin"
+  ],
+  "about": {
+    "kicker": "The Band",
+    "heading": "Raw Sound.\nReal Energy.",
+    "paragraphs": [
+      "SMO is Sam and the band — a full-tilt alt-rock outfit out of Dublin. Equal parts swagger and sincerity, they've been turning heads at venues across the capital with a sound that hits before you've even settled in.",
+      "From late nights at the Grand Social to packed floors at Whelans, the SMO live show is built to be felt. New releases dropping constantly — the story's only getting started."
+    ],
+    "stats": [
+      {
+        "num": "3K+",
+        "label": "Monthly Listeners"
+      },
+      {
+        "num": "5+",
+        "label": "Releases"
+      },
+      {
+        "num": "DUB",
+        "label": "Based in Dublin"
+      }
+    ],
+    "imageMain": "assets/images/about-main.jpg",
+    "imageAccent": "assets/images/about-accent.jpg"
+  },
+  "shopPreview": {
+    "kicker": "Merch",
+    "heading": "Wear\nThe Star",
+    "text": "Three official SMO tees — the star logo in yellow on black, in red on white, and the red crowd print. Heavyweight cotton, screen printed, sizes S–XXL.",
+    "price": "€25",
+    "image": "assets/images/tee-star-black.jpg"
+  },
+  "mailingList": {
+    "kicker": "Mailing List",
+    "heading": "Know First.",
+    "text": "New releases, gig announcements and merch drops, straight to you. No spam, and one click to get off the list."
+  },
+  "shopPage": {
+    "kicker": "Official Merch",
+    "heading": "The Shop",
+    "shippingNote": "Postage added at checkout — Ireland €5 · UK €7 · Rest of the EU €9.\nShipping anywhere else? Message SMO on Instagram for a quote."
+  }
+}

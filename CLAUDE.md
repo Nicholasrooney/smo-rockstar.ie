@@ -87,6 +87,45 @@ them for months after they'd passed. Empty now renders "No dates announced"
 with an Instagram link. `main.js` falls back to reading `data/shows.json`
 directly if the API errors, so gigs survive a PHP failure.
 
+## The site is now server-rendered
+
+`index.html` and `shop.html` are **`index.php` / `shop.php`**. `.htaccess`
+rewrites `.html` → `.php` when the `.html` file doesn't exist, so every URL,
+bookmark, canonical and sitemap entry is unchanged — `/shop.html` still works
+and still shows that in the address bar. Don't "tidy up" by renaming links.
+
+Editable content lives in `data/`:
+
+```
+content.json    hero, ticker, about copy + stats, merch block, mailing list,
+                shop page headings
+releases.json   the Latest Releases grid
+gallery.json    homepage photo grid (wide flag = spans two columns)
+products.json   the shop AND the prices checkout.php charges
+shows.json      gigs (not tracked in git — written on the server)
+```
+
+`content.php` loads them with fallbacks — a missing or broken file must never
+blank a section. Everything is rendered on the server **on purpose**: this copy
+is the SEO content, and rendering it in the browser would leave Google looking
+at an empty page.
+
+Admin edits all of it at `admin.html` under tabs: Shows, Shop, Releases,
+Gallery, Page Text, Mailing List.
+
+**Editors type plain text, never HTML.** Every field is escaped on output
+(`h()` / `h_lines()`), verified: a `<script>` pasted into the strapline renders
+as visible text. `h_lines()` turns newlines into `<br>` so two-line headings
+work; that's the only markup an editor can produce.
+
+The API rebuilds every field rather than saving what was posted, and image
+paths must match `assets/…` with no traversal and no remote URLs. Products
+reject a blank name, a zero price, or a duplicate id — a duplicate would make
+two products share a price at checkout.
+
+`smo_cut()` in content.php wraps `mb_substr` with a `substr` fallback. Hostinger
+has mbstring; a host without it would otherwise fatal the whole admin on save.
+
 ## Mailing list
 
 Signup form on the homepage → `subscribe.php`. **Addresses are written to

@@ -1,0 +1,10 @@
+[
+  { "src": "assets/images/gallery-night.jpg",    "alt": "Sam of SMO at night",   "wide": true },
+  { "src": "assets/images/gallery-guitar.jpg",   "alt": "SMO live on guitar",    "wide": false },
+  { "src": "assets/images/gallery-duo.jpg",      "alt": "SMO on stage",          "wide": false },
+  { "src": "assets/images/gallery-piano.jpg",    "alt": "Piano",                 "wide": false },
+  { "src": "assets/images/gallery-vocal.jpg",    "alt": "SMO performing",        "wide": false },
+  { "src": "assets/images/gallery-band.jpg",     "alt": "SMO band on stage",     "wide": true },
+  { "src": "assets/images/gallery-acoustic.jpg", "alt": "SMO acoustic set",      "wide": false },
+  { "src": "assets/images/gallery-star.jpg",     "alt": "SMO star backdrop live","wide": false }
+]
