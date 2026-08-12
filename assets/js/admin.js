@@ -1,188 +1,236 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, orderBy, query, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { firebaseConfig, ADMIN_EMAIL } from './firebase-config.js';
+/* =====================================================================
+   SMO — shows admin
+   ---------------------------------------------------------------------
+   Talks to shows-api.php. Auth is a PHP session, so nothing here is a
+   security control — this file only decides what to draw. The server
+   re-checks the session and re-sanitises every field on save.
+   ===================================================================== */
+(function () {
+  var API = 'shows-api.php';
 
-// ── INIT ──
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  /* Band photos already on the site, offered so a show can have pictures
+     without anyone having to find and upload one. */
+  var STOCK = [
+    'assets/images/gallery-band.jpg',
+    'assets/images/gallery-guitar.jpg',
+    'assets/images/gallery-vocal.jpg',
+    'assets/images/gallery-star.jpg',
+    'assets/images/gallery-night.jpg',
+    'assets/images/gallery-duo.jpg',
+    'assets/images/gallery-acoustic.jpg',
+    'assets/images/gallery-piano.jpg',
+    'assets/images/about-accent.jpg',
+    'assets/images/about-main.jpg'
+  ];
 
-// ── ELEMENTS ──
-const loginSection = document.getElementById('login-section');
-const adminPanel = document.getElementById('admin-panel');
-const loginBtn = document.getElementById('google-login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const userAvatar = document.getElementById('user-avatar');
-const userName = document.getElementById('user-name');
-const showsTableBody = document.getElementById('shows-body');
-const newShowBtn = document.getElementById('new-show-btn');
-const modal = document.getElementById('show-modal');
-const modalTitle = document.getElementById('modal-title');
-const showForm = document.getElementById('show-form');
-const cancelModal = document.getElementById('cancel-modal');
-const saveShowBtn = document.getElementById('save-show-btn');
+  var shows = [];
+  var csrf = null;
 
-let editingId = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var show = function (id) { $(id).classList.remove('hidden'); };
+  var hide = function (id) { $(id).classList.add('hidden'); };
 
-// ── AUTH STATE ──
-onAuthStateChanged(auth, user => {
-  if (user && user.email === ADMIN_EMAIL) {
-    loginSection.classList.add('hidden');
-    adminPanel.classList.remove('hidden');
-    if (userAvatar) userAvatar.src = user.photoURL || '';
-    if (userName) userName.textContent = user.displayName || user.email;
-    loadShows();
-  } else {
-    loginSection.classList.remove('hidden');
-    adminPanel.classList.add('hidden');
-    if (user) {
-      auth.signOut();
-      showToast('Access denied. Only Sam can log in here.');
-    }
+  function post(action, data) {
+    var body = new FormData();
+    body.append('action', action);
+    if (csrf) body.append('csrf', csrf);
+    Object.keys(data || {}).forEach(function (k) { body.append(k, data[k]); });
+    return fetch(API, { method: 'POST', body: body }).then(function (r) {
+      return r.json().catch(function () { return { error: 'Server returned something unreadable.' }; })
+        .then(function (j) { if (!r.ok) throw new Error(j.error || 'Request failed'); return j; });
+    });
   }
-});
 
-// ── LOGIN ──
-loginBtn?.addEventListener('click', async () => {
-  try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  } catch (e) {
-    showToast('Login failed: ' + e.message);
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
   }
-});
 
-// ── LOGOUT ──
-logoutBtn?.addEventListener('click', () => signOut(auth));
+  /* ── boot ─────────────────────────────────────────────── */
+  fetch(API + '?action=session').then(function (r) { return r.json(); }).then(function (s) {
+    if (!s.setUp) { show('setup'); return; }
+    csrf = s.csrf;
+    if (s.admin) { openEditor(); } else { show('login'); }
+  }).catch(function () { show('login'); });
 
-// ── LOAD SHOWS ──
-async function loadShows() {
-  if (!showsTableBody) return;
-  showsTableBody.innerHTML = '<tr><td colspan="6" style="color:var(--grey);text-align:center;padding:30px">Loading...</td></tr>';
+  /* ── login ────────────────────────────────────────────── */
+  function doLogin() {
+    var pw = $('pw').value;
+    $('login-msg').textContent = '';
+    post('login', { password: pw }).then(function (r) {
+      csrf = r.csrf;
+      hide('login');
+      openEditor();
+    }).catch(function (e) {
+      $('login-msg').textContent = e.message;
+    });
+  }
+  $('login-btn').addEventListener('click', doLogin);
+  $('pw').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
 
-  try {
-    const q = query(collection(db, 'shows'), orderBy('date', 'asc'));
-    const snap = await getDocs(q);
+  $('logout-btn').addEventListener('click', function () {
+    post('logout', {}).then(function () { location.reload(); });
+  });
 
-    if (snap.empty) {
-      showsTableBody.innerHTML = '<tr><td colspan="6" style="color:var(--grey);text-align:center;padding:30px">No shows yet. Click "+ New Show" to add one.</td></tr>';
+  /* ── editor ───────────────────────────────────────────── */
+  function openEditor() {
+    show('editor');
+    fetch(API + '?action=list').then(function (r) { return r.json(); }).then(function (d) {
+      shows = d.shows || [];
+      render();
+    });
+  }
+
+  function blank() {
+    return { id: '', name: '', venue: '', date: '', price: '', ticketLink: '', photos: [] };
+  }
+
+  $('add-btn').addEventListener('click', function () {
+    shows.push(blank());
+    render();
+    var cards = document.querySelectorAll('.adm-card');
+    if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  function render() {
+    var list = $('list');
+    $('count').textContent = shows.length + (shows.length === 1 ? ' show' : ' shows');
+
+    if (!shows.length) {
+      list.innerHTML = '<div class="adm-empty">No shows yet. Hit <strong>+ Add Show</strong> to put one up.</div>';
       return;
     }
 
-    showsTableBody.innerHTML = snap.docs.map(d => {
-      const s = { id: d.id, ...d.data() };
-      const date = new Date(s.date);
-      const dateStr = date.toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' });
-      const timeStr = date.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' });
-      const price = s.price === '0' || s.price === 0 ? 'Free' : `€${s.price}`;
-      return `
-        <tr>
-          <td>${dateStr} ${timeStr}</td>
-          <td>${s.name}</td>
-          <td>${s.venue}</td>
-          <td>${price}</td>
-          <td>${s.ticketLink ? `<a href="${s.ticketLink}" target="_blank" style="color:var(--red);font-size:11px">Link ↗</a>` : '—'}</td>
-          <td>
-            <div class="action-btns">
-              <button class="btn btn-outline btn-sm" onclick="editShow('${s.id}', ${JSON.stringify(s).replace(/'/g, "&#39;")})">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteShow('${s.id}')">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  } catch (e) {
-    showsTableBody.innerHTML = `<tr><td colspan="6" style="color:var(--red)">Error: ${e.message}</td></tr>`;
-  }
-}
-
-// ── NEW SHOW MODAL ──
-newShowBtn?.addEventListener('click', () => {
-  editingId = null;
-  if (modalTitle) modalTitle.textContent = 'New Show';
-  showForm?.reset();
-  modal?.classList.remove('hidden');
-});
-
-cancelModal?.addEventListener('click', () => modal?.classList.add('hidden'));
-
-modal?.addEventListener('click', e => {
-  if (e.target === modal) modal.classList.add('hidden');
-});
-
-// ── SAVE SHOW ──
-showForm?.addEventListener('submit', async e => {
-  e.preventDefault();
-  saveShowBtn.disabled = true;
-  saveShowBtn.textContent = 'Saving...';
-
-  const data = {
-    name: document.getElementById('f-name').value.trim(),
-    venue: document.getElementById('f-venue').value.trim(),
-    date: document.getElementById('f-date').value,
-    price: document.getElementById('f-price').value.trim() || '0',
-    ticketLink: document.getElementById('f-tickets').value.trim(),
-    updatedAt: serverTimestamp()
-  };
-
-  try {
-    if (editingId) {
-      await updateDoc(doc(db, 'shows', editingId), data);
-      showToast('Show updated ✓');
-    } else {
-      data.createdAt = serverTimestamp();
-      await addDoc(collection(db, 'shows'), data);
-      showToast('Show added ✓');
-    }
-    modal.classList.add('hidden');
-    loadShows();
-  } catch (err) {
-    showToast('Error: ' + err.message);
+    list.innerHTML = shows.map(function (s, i) { return cardHtml(i, s); }).join('');
+    wire();
   }
 
-  saveShowBtn.disabled = false;
-  saveShowBtn.textContent = 'Save Show';
-});
+  function cardHtml(i, s) {
+    return '<div class="adm-card" data-i="' + i + '">' +
+      '<div class="adm-row">' +
+        field(i, 'name', 'Show / gig name', s.name, 'Grand Social') +
+        field(i, 'venue', 'Venue & location', s.venue, 'Grand Social, Dublin') +
+      '</div>' +
+      '<div class="adm-row">' +
+        field(i, 'date', 'Date & time', s.date, '', 'datetime-local') +
+        field(i, 'price', 'Ticket price (€) — blank or 0 = free', s.price, '15') +
+      '</div>' +
+      field(i, 'ticketLink', 'Ticket link', s.ticketLink, 'https://…') +
 
-// ── EDIT ──
-window.editShow = (id, show) => {
-  editingId = id;
-  if (modalTitle) modalTitle.textContent = 'Edit Show';
-  document.getElementById('f-name').value = show.name || '';
-  document.getElementById('f-venue').value = show.venue || '';
-  // Format datetime-local value
-  const d = new Date(show.date);
-  const pad = n => n.toString().padStart(2, '0');
-  document.getElementById('f-date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  document.getElementById('f-price').value = show.price || '';
-  document.getElementById('f-tickets').value = show.ticketLink || '';
-  modal?.classList.remove('hidden');
-};
-
-// ── DELETE ──
-window.deleteShow = async (id) => {
-  if (!confirm('Delete this show?')) return;
-  try {
-    await deleteDoc(doc(db, 'shows', id));
-    showToast('Show deleted');
-    loadShows();
-  } catch (e) {
-    showToast('Error: ' + e.message);
+      '<div class="form-group" style="margin-bottom:0">' +
+        '<label>Photos <span class="adm-hint">(up to 3 — tap to pick, or upload your own)</span></label>' +
+        '<div class="chosen" data-chosen="' + i + '">' +
+          (s.photos || []).map(function (p, pi) {
+            return '<figure><img src="' + esc(p) + '" alt="">' +
+                   '<button type="button" data-rm="' + i + '" data-pi="' + pi + '" title="Remove">×</button></figure>';
+          }).join('') +
+        '</div>' +
+        '<div class="pick">' +
+          STOCK.map(function (p) {
+            var on = (s.photos || []).indexOf(p) > -1 ? ' on' : '';
+            return '<img class="' + on.trim() + '" src="' + p + '" data-pick="' + i + '" data-src="' + p + '" alt="">';
+          }).join('') +
+        '</div>' +
+        '<div class="adm-actions">' +
+          '<label class="btn btn-outline" style="font-size:11px;cursor:pointer">' +
+            'Upload photo<input type="file" accept="image/*" data-up="' + i + '" hidden>' +
+          '</label>' +
+          '<button type="button" class="btn btn-danger" data-del="' + i + '" style="font-size:11px">Delete show</button>' +
+          '<span class="adm-hint" data-up-msg="' + i + '"></span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }
-};
 
-// ── TOAST ──
-function showToast(msg) {
-  let toast = document.getElementById('toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast';
-    toast.className = 'toast';
-    document.body.appendChild(toast);
+  function field(i, key, label, val, ph, type) {
+    return '<div class="form-group">' +
+      '<label>' + label + '</label>' +
+      '<input type="' + (type || 'text') + '" data-f="' + key + '" data-i="' + i + '" ' +
+        'value="' + esc(val) + '" placeholder="' + esc(ph || '') + '">' +
+    '</div>';
   }
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toast._timeout);
-  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3500);
-}
+
+  function wire() {
+    /* text fields */
+    document.querySelectorAll('[data-f]').forEach(function (el) {
+      el.addEventListener('input', function () {
+        shows[+el.dataset.i][el.dataset.f] = el.value;
+        dirty();
+      });
+    });
+
+    /* stock picker — toggles, capped at 3 */
+    document.querySelectorAll('[data-pick]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var s = shows[+el.dataset.pick];
+        s.photos = s.photos || [];
+        var at = s.photos.indexOf(el.dataset.src);
+        if (at > -1) { s.photos.splice(at, 1); }
+        else if (s.photos.length >= 3) { return; }
+        else { s.photos.push(el.dataset.src); }
+        render(); dirty();
+      });
+    });
+
+    /* remove a chosen photo */
+    document.querySelectorAll('[data-rm]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        shows[+el.dataset.rm].photos.splice(+el.dataset.pi, 1);
+        render(); dirty();
+      });
+    });
+
+    /* delete show */
+    document.querySelectorAll('[data-del]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var s = shows[+el.dataset.del];
+        if (!confirm('Delete "' + (s.name || 'this show') + '"? It disappears from the site when you save.')) return;
+        shows.splice(+el.dataset.del, 1);
+        render(); dirty();
+      });
+    });
+
+    /* upload */
+    document.querySelectorAll('[data-up]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        var i = +el.dataset.up;
+        var msg = document.querySelector('[data-up-msg="' + i + '"]');
+        if (!el.files || !el.files[0]) return;
+        if ((shows[i].photos || []).length >= 3) { msg.textContent = 'Already 3 photos.'; return; }
+        msg.textContent = 'Uploading…';
+        var body = new FormData();
+        body.append('action', 'upload');
+        body.append('csrf', csrf);
+        body.append('photo', el.files[0]);
+        fetch(API, { method: 'POST', body: body })
+          .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error); return j; }); })
+          .then(function (j) {
+            shows[i].photos = shows[i].photos || [];
+            shows[i].photos.push(j.path);
+            render(); dirty();
+          })
+          .catch(function (e) { msg.textContent = e.message; });
+      });
+    });
+  }
+
+  function dirty() {
+    $('save-msg').innerHTML = '<span class="adm-hint">Unsaved changes</span>';
+  }
+
+  /* ── save ─────────────────────────────────────────────── */
+  $('save-btn').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    $('save-msg').innerHTML = '<span class="adm-hint">Saving…</span>';
+    post('save', { shows: JSON.stringify(shows) }).then(function (r) {
+      $('save-msg').innerHTML = '<span class="toast-ok">Saved — ' + r.count + ' live on the site.</span>';
+      btn.disabled = false;
+      openEditor();                       // re-read so ids/order match the server
+    }).catch(function (e) {
+      $('save-msg').innerHTML = '<span class="toast-err">' + esc(e.message) + '</span>';
+      btn.disabled = false;
+    });
+  });
+})();

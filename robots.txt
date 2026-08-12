@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /shows-api.php
 
 Sitemap: https://smo-rockstar.ie/sitemap.xml

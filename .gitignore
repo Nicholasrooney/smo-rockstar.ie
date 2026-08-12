@@ -1,8 +1,15 @@
 # Stripe secret — NEVER commit this. Lives only on the server.
 stripe-secret.php
 
+# Admin password — same rule. This repo is PUBLIC.
+admin-secret.php
+
 # Private order/attempt logs (server-side only; local fallback dir if testing)
 logs/
+
+# Photos uploaded through the shows admin (live on the server, not in git)
+assets/images/shows/*
+!assets/images/shows/README.txt
 
 # Original Hostinger zips / reference exports
 *.zip

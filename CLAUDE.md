@@ -56,10 +56,27 @@ that properly needs a Stripe webhook.
 
 ## Shows / admin
 
-`admin.html` + `assets/js/admin.js`, Google sign-in gated to `ADMIN_EMAIL` in
-`assets/js/firebase-config.js`. **Firebase is still on placeholder values** —
-shows won't save until a real project is created and the config filled in.
-Until then the homepage falls back to two hardcoded example shows.
+**Firebase is gone.** Shows now live in `data/shows.json`, written by
+`shows-api.php` and edited at `admin.html` (+ `assets/js/admin.js`). Auth is a
+plain PHP session behind one shared password — that was the requirement, so
+Google sign-in was the wrong tool.
+
+The password lives in `admin-secret.php`, **git-ignored because this repo is
+public**, one line: `<?php return 'the-password';`. Without it the admin locks
+itself and shows setup instructions. Same pattern as `stripe-secret.php`.
+
+The API re-sanitises every field on save — nothing posted is trusted. Photo
+paths must match `assets/images/…` (no remote URLs, no `..`), uploads are
+validated with `getimagesize` rather than by filename, and saved under a random
+name in `assets/images/shows/` (git-ignored; they live only on the server).
+
+Editors pick from ~10 stock band photos or upload their own, max 3 per show.
+
+**Never reintroduce hardcoded fallback gigs.** The old Firebase version fell
+back to two invented shows dated Apr/May 2025, and the live homepage advertised
+them for months after they'd passed. Empty now renders "No dates announced"
+with an Instagram link. `main.js` falls back to reading `data/shows.json`
+directly if the API errors, so gigs survive a PHP failure.
 
 ## Cache busting — IMPORTANT
 

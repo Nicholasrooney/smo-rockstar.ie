@@ -401,6 +401,18 @@ section { padding: 100px 60px; }
   position: relative;
 }
 
+/* A show can carry a photo. Only widen the grid when one is actually
+   present, so rows without a picture keep their original layout. */
+.show-item:has(.show-thumb) { grid-template-columns: 86px 140px 1fr auto auto; }
+
+.show-thumb {
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--border);
+}
+
 .show-item::before {
   content: '';
   position: absolute;
@@ -1134,8 +1146,9 @@ footer {
   .footer-top { grid-template-columns: 1fr 1fr; }
 
   .admin-panel { padding: 30px 24px; }
-  .show-item { grid-template-columns: 100px 1fr; }
-  .show-price, .show-tickets { display: none; }
+  .show-item,
+  .show-item:has(.show-thumb) { grid-template-columns: 100px 1fr; }
+  .show-price, .show-tickets, .show-thumb { display: none; }
 }
 
 @media (max-width: 768px) {

@@ -102,74 +102,88 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// ── SHOWS (loaded from Firebase) ──
+// ── SHOWS ──
+// Loaded from shows-api.php, which reads data/shows.json — the file the
+// admin page writes. This used to try Firebase and, when that wasn't
+// configured, fall back to two hardcoded gigs. Those fallback dates went
+// stale and the live homepage spent months advertising gigs from 2025, so
+// there is deliberately no invented data here now: no shows means we say so.
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 async function loadShows() {
   const container = document.getElementById('shows-list');
   if (!container) return;
 
-  // Load Firebase dynamically
+  const nothingOn =
+    '<div class="no-shows">No dates announced right now — ' +
+    '<a href="https://www.instagram.com/smo_rockstar" target="_blank" rel="noopener" style="color:var(--red)">' +
+    'follow @smo_rockstar</a> to hear about the next one first.</div>';
+
+  // Try the API first. If PHP is down or misconfigured, read the same data
+  // straight from the JSON file the admin writes — it sits in the web root
+  // and is public either way, so this costs nothing and keeps the gig list
+  // on the page when the server-side half is broken.
+  async function fetchShows(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.shows || []);
+  }
+
+  let shows;
   try {
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-    const { getFirestore, collection, getDocs, orderBy, query } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    const { firebaseConfig } = await import('./firebase-config.js');
-
-    const app = initializeApp(firebaseConfig, 'main');
-    const db = getFirestore(app);
-    const q = query(collection(db, 'shows'), orderBy('date', 'asc'));
-    const snap = await getDocs(q);
-
-    const now = new Date();
-    const upcoming = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(s => new Date(s.date) >= now);
-
-    if (upcoming.length === 0) {
-      container.innerHTML = '<div class="no-shows">No upcoming shows right now — check back soon!</div>';
+    shows = await fetchShows('shows-api.php?action=list');
+  } catch (apiErr) {
+    try {
+      shows = await fetchShows('data/shows.json');
+    } catch (fileErr) {
+      console.warn('Could not load shows:', apiErr.message, '/', fileErr.message);
+      container.innerHTML = nothingOn;
       return;
     }
+  }
 
-    container.innerHTML = upcoming.map(show => {
-      const d = new Date(show.date);
-      const day = d.getDate().toString().padStart(2, '0');
-      const month = d.toLocaleString('en-IE', { month: 'short' }).toUpperCase();
-      const time = d.toLocaleString('en-IE', { hour: '2-digit', minute: '2-digit' });
-      const priceStr = show.price === '0' || show.price === 0 ? 'Free' : `€${show.price}`;
-      const priceClass = (show.price === '0' || show.price === 0) ? 'show-price free' : 'show-price';
+  // Keep a gig listed until the end of the day it happens on, so an evening
+  // show doesn't vanish from the site that same afternoon.
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  const upcoming = shows.filter(s => {
+    const d = new Date(s.date);
+    return !isNaN(d) && d >= cutoff;
+  });
 
-      return `
-        <div class="show-item">
-          <div class="show-date">
-            <span class="month">${month} ${d.getFullYear()}</span>
-            ${day}
-          </div>
-          <div class="show-info">
-            <h3>${show.name}</h3>
-            <div class="venue">📍 ${show.venue} &nbsp;·&nbsp; ⏰ ${time}</div>
-          </div>
-          <div class="${priceClass}">${priceStr}</div>
-          <div class="show-tickets">
-            ${show.ticketLink ? `<a href="${show.ticketLink}" target="_blank" class="btn btn-primary btn-sm">Get Tickets</a>` : ''}
-          </div>
+  if (!upcoming.length) { container.innerHTML = nothingOn; return; }
+
+  container.innerHTML = upcoming.map(show => {
+    const d = new Date(show.date);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = d.toLocaleString('en-IE', { month: 'short' }).toUpperCase();
+    const time = d.toLocaleString('en-IE', { hour: '2-digit', minute: '2-digit' });
+    const free = show.price === '' || show.price === '0' || show.price === 0;
+    const priceStr = free ? 'Free' : `€${escapeHtml(show.price)}`;
+    const photo = (show.photos && show.photos[0]) ? escapeHtml(show.photos[0]) : '';
+
+    return `
+      <div class="show-item">
+        ${photo ? `<img class="show-thumb" src="${photo}" alt="" loading="lazy">` : ''}
+        <div class="show-date">
+          <span class="month">${month} ${d.getFullYear()}</span>
+          ${day}
         </div>
-      `;
-    }).join('');
-  } catch (e) {
-    console.warn('Firebase not configured yet:', e.message);
-    container.innerHTML = `
-      <div class="show-item">
-        <div class="show-date"><span class="month">APR 2025</span>12</div>
-        <div class="show-info"><h3>Grand Social</h3><div class="venue">📍 Grand Social, Dublin &nbsp;·&nbsp; ⏰ 21:00</div></div>
-        <div class="show-price">€15</div>
-        <div class="show-tickets"><a href="#" class="btn btn-primary btn-sm">Get Tickets</a></div>
-      </div>
-      <div class="show-item">
-        <div class="show-date"><span class="month">MAY 2025</span>03</div>
-        <div class="show-info"><h3>Whelans</h3><div class="venue">📍 Whelans, Dublin &nbsp;·&nbsp; ⏰ 20:00</div></div>
-        <div class="show-price">€18</div>
-        <div class="show-tickets"><a href="#" class="btn btn-primary btn-sm">Get Tickets</a></div>
+        <div class="show-info">
+          <h3>${escapeHtml(show.name)}</h3>
+          <div class="venue">📍 ${escapeHtml(show.venue)} &nbsp;·&nbsp; ⏰ ${time}</div>
+        </div>
+        <div class="${free ? 'show-price free' : 'show-price'}">${priceStr}</div>
+        <div class="show-tickets">
+          ${show.ticketLink ? `<a href="${escapeHtml(show.ticketLink)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Get Tickets</a>` : ''}
+        </div>
       </div>
     `;
-  }
+  }).join('');
 }
 
 loadShows();
