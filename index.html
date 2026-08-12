@@ -9,7 +9,7 @@
   <meta property="og:description" content="Dublin alt-rock. Catch us live.">
   <meta property="og:image" content="assets/images/og-image.jpg">
   <link rel="canonical" href="https://smo-rockstar.ie/">
-  <link rel="stylesheet" href="assets/css/style.css?v=9">
+  <link rel="stylesheet" href="assets/css/style.css?v=10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -76,6 +76,30 @@
   </div>
 </div>
 
+<!-- ── FEATURED RELEASE ──
+     Sits near the top while a release is new. FEATURED_RELEASE in main.js
+     decides: it hides itself a week after the release date and the track
+     drops into the normal Releases grid below, so nobody has to remember
+     to come back and demote it. -->
+<section class="featured hidden" id="featured-release">
+  <div class="featured-grid">
+    <div class="featured-art">
+      <img src="assets/images/release-white-flag.jpg" alt="White Flag — SMO" width="1000" height="1000">
+    </div>
+    <div class="featured-text">
+      <span class="featured-tag" id="featured-tag">New Single</span>
+      <h2>White<br>Flag</h2>
+      <p id="featured-blurb">Out soon. Pre-save it now and it lands in your library the day it drops.</p>
+      <div class="featured-actions">
+        <a href="https://ditto.fm/white-flag-smo" target="_blank" rel="noopener"
+           class="btn btn-primary btn-buy" id="featured-cta" style="width:auto">Pre-Save Now</a>
+        <a href="#mailing-list" class="btn btn-outline">Get Release Alerts</a>
+      </div>
+      <p class="featured-date" id="featured-date"></p>
+    </div>
+  </div>
+</section>
+
 <!-- ── ABOUT ── -->
 <section id="about">
   <div class="about-grid">
@@ -125,70 +149,119 @@
   </div>
   <div class="releases-grid">
 
-    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+    <!-- White Flag also lives here. Hidden while it is the featured
+         release above; main.js reveals it once the feature retires, so
+         the track is never missing from the list. -->
+    <div class="release-card hidden" id="white-flag-card">
+      <div class="release-artwork">
+        <img src="assets/images/release-white-flag.jpg" alt="White Flag" loading="lazy">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="release-info">
+        <h3><a class="release-link" href="https://ditto.fm/white-flag-smo" target="_blank" rel="noopener">White Flag</a></h3>
+        <div class="meta">Single · 2026</div>
+        <div class="release-links">
+          <a href="https://ditto.fm/white-flag-smo" target="_blank" rel="noopener">Listen</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="release-card">
       <div class="release-artwork">
         <img src="assets/images/release-lost-my-way.jpg" alt="Lost My Way">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
-        <h3>Lost My Way</h3>
+        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Lost My Way</a></h3>
         <div class="meta">Single · 2025</div>
         <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
         </div>
       </div>
-    </a>
+    </div>
 
-    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+    <div class="release-card">
       <div class="release-artwork">
         <img src="assets/images/release-war.jpg" alt="War">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
-        <h3>War</h3>
+        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">War</a></h3>
         <div class="meta">Single · 2025</div>
         <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
         </div>
       </div>
-    </a>
+    </div>
 
-    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+    <div class="release-card">
       <div class="release-artwork">
         <img src="assets/images/release-love-me-too.jpg" alt="Love Me Too">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
-        <h3>Love Me Too</h3>
+        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Love Me Too</a></h3>
         <div class="meta">Single · 2025</div>
         <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
         </div>
       </div>
-    </a>
+    </div>
 
-    <a class="release-card" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">
+    <div class="release-card">
       <div class="release-artwork">
         <img src="assets/images/release-celebrate-you.jpg" alt="Celebrate You">
         <div class="play-icon">▶</div>
       </div>
       <div class="release-info">
-        <h3>Celebrate You</h3>
+        <h3><a class="release-link" href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Celebrate You</a></h3>
         <div class="meta">Single · 2025</div>
         <div class="release-links">
-          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank">Spotify</a>
-          <a href="https://www.youtube.com/@smo_rockstar" target="_blank">YouTube</a>
+          <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" rel="noopener">Spotify</a>
+          <a href="https://www.youtube.com/@smo_rockstar" target="_blank" rel="noopener">YouTube</a>
         </div>
       </div>
-    </a>
+    </div>
 
   </div>
 
   <div style="text-align:center;margin-top:48px">
     <a href="https://open.spotify.com/artist/5J9snBOPKK6GivDSJa1rO3" target="_blank" class="btn btn-outline">All Music on Spotify ↗</a>
+  </div>
+</section>
+
+<!-- ── MAILING LIST ── -->
+<!-- Sits straight after the music: someone who's just listened is the most
+     likely person on the page to want the next release in their inbox. -->
+<section class="signup" id="mailing-list">
+  <div class="signup-inner">
+    <span class="section-label">Mailing List</span>
+    <h2>Know First.</h2>
+    <p class="signup-blurb">
+      New releases, gig announcements and merch drops, straight to you.
+      No spam, and one click to get off the list.
+    </p>
+
+    <form id="signup-form" class="signup-form" novalidate>
+      <div class="signup-row">
+        <input type="email" id="signup-email" name="email" required
+               autocomplete="email" placeholder="you@example.com" aria-label="Email address">
+        <button type="submit" class="btn btn-primary" id="signup-btn">Sign Up</button>
+      </div>
+      <label class="signup-consent">
+        <input type="checkbox" id="signup-consent" required>
+        <span>Yes, email me about SMO shows, releases and merch. I can unsubscribe any time.</span>
+      </label>
+      <p id="signup-msg" class="signup-msg hidden"></p>
+      <p class="signup-small">
+        We keep your address and nothing else. See the
+        <a href="legal.html#privacy">privacy policy</a>.
+      </p>
+    </form>
   </div>
 </section>
 
@@ -263,8 +336,8 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=9"></script>
-<script src="assets/js/cookie-consent.js?v=9" defer></script>
+<script type="module" src="assets/js/main.js?v=10"></script>
+<script src="assets/js/cookie-consent.js?v=10" defer></script>
 
 </body>
 </html>

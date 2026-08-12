@@ -93,9 +93,48 @@
     post('logout', {}).then(function () { location.reload(); });
   });
 
+  /* ── mailing list ─────────────────────────────────────── */
+  function loadSubs() {
+    var body = document.querySelector('#subs-table tbody');
+    var count = $('subs-count');
+    var csv = $('subs-csv');
+    if (!body) return;
+
+    /* The CSV is a plain link, so the token rides in the query string —
+       the server accepts it there for reads. */
+    if (csv && csrf) csv.href = API + '?action=subs-csv&csrf=' + encodeURIComponent(csrf);
+
+    fetch(API + '?action=subs&csrf=' + encodeURIComponent(csrf || ''))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var list = d.subscribers || [];
+        count.textContent = list.length + (list.length === 1 ? ' subscriber' : ' subscribers');
+        if (!list.length) {
+          body.innerHTML = '<tr><td colspan="3" class="subs-empty">Nobody yet. ' +
+            'The signup form is on the homepage.</td></tr>';
+          if (csv) csv.style.display = 'none';
+          return;
+        }
+        if (csv) csv.style.display = '';
+        body.innerHTML = list.map(function (x) {
+          var when = x.signedUp ? new Date(x.signedUp) : null;
+          return '<tr><td>' + esc(x.email) + '</td><td>' +
+            (when && !isNaN(when) ? when.toLocaleString('en-IE', {
+              day: '2-digit', month: 'short', year: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+            }) : '—') +
+            '</td><td>' + esc(x.source || 'website') + '</td></tr>';
+        }).join('');
+      })
+      .catch(function () {
+        count.textContent = 'Could not load the list.';
+      });
+  }
+
   /* ── editor ───────────────────────────────────────────── */
   function openEditor() {
     show('editor');
+    loadSubs();
     fetch(API + '?action=list').then(function (r) { return r.json(); }).then(function (d) {
       shows = d.shows || [];
       render();

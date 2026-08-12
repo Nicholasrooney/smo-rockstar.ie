@@ -87,6 +87,38 @@ them for months after they'd passed. Empty now renders "No dates announced"
 with an Instagram link. `main.js` falls back to reading `data/shows.json`
 directly if the API errors, so gigs survive a PHP failure.
 
+## Mailing list
+
+Signup form on the homepage → `subscribe.php`. **Addresses are written to
+`smo-logs/subscribers.json`, OUTSIDE the web root** — deliberately not
+`data/subscribers.json`, because `data/` is inside `public_html` and anyone
+could have downloaded the list by guessing the URL.
+
+Read them at **admin.html**, under the shows editor: a table plus a CSV
+download. The CSV link carries the CSRF token in the query string, which is
+why `shows-api.php` accepts the token from GET as well as POST.
+
+Consent is stored with each address (timestamp + the exact wording agreed to),
+because GDPR means being able to show *what* someone opted in to. If the
+wording on the form changes, change `CONSENT_TEXT` in `subscribe.php` — older
+records keep the wording they actually agreed to.
+
+A duplicate signup returns the same message as a new one on purpose: telling a
+stranger "you're already subscribed" confirms who is on the list.
+
+## Featured release
+
+`FEATURED_RELEASE` at the bottom of `main.js` drives the big block near the top
+of the homepage. Set `releaseDate` (YYYY-MM-DD) and it manages itself:
+pre-save before that date, "Listen Now" after it, and `FEATURE_DAYS` (7) later
+it hides itself while the same track appears in the normal Releases grid. Blank
+date = stays featured indefinitely.
+
+Release cards are `<div>`, not `<a>`. They used to be anchors containing the
+Spotify and YouTube links — anchors can't nest, so the parser split each card
+into fragments and the White Flag `id` appeared three times in the DOM. The
+title now carries a stretched `.release-link`.
+
 ## Cache busting — IMPORTANT
 
 Every page loads `assets/css/style.css?v=N` and `assets/js/*.js?v=N`.

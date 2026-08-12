@@ -297,3 +297,106 @@ document.getElementById('pay-btn')?.addEventListener('click', async (e) => {
     btn.classList.remove('fired');
   }
 });
+
+// ── FEATURED RELEASE ──────────────────────────────────────────────
+// One place to control the big block near the top of the homepage.
+//
+// releaseDate: the day it comes out, as YYYY-MM-DD.
+//   • before that date  → "Pre-Save Now"
+//   • after it          → "Listen Now"
+//   • FEATURE_DAYS after it → the block hides itself and the track appears
+//     in the normal Releases grid instead
+// Leave releaseDate empty and it simply stays featured until you set one.
+const FEATURED_RELEASE = {
+  title:       'White Flag',
+  presave:     'https://ditto.fm/white-flag-smo',
+  releaseDate: ''            // ← set this, e.g. '2026-09-05'
+};
+const FEATURE_DAYS = 7;      // how long it stays featured after release
+
+(function featureRelease() {
+  const block = document.getElementById('featured-release');
+  const card  = document.getElementById('white-flag-card');
+  if (!block) return;
+
+  const showBlock = () => { block.classList.remove('hidden'); card?.classList.add('hidden'); };
+  const showCard  = () => { block.classList.add('hidden');    card?.classList.remove('hidden'); };
+
+  const released = FEATURED_RELEASE.releaseDate
+    ? new Date(FEATURED_RELEASE.releaseDate + 'T00:00:00')
+    : null;
+
+  if (!released || isNaN(released)) { showBlock(); return; }   // no date set: stay featured
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const retireOn = new Date(released);
+  retireOn.setDate(retireOn.getDate() + FEATURE_DAYS);
+
+  if (today >= retireOn) { showCard(); return; }
+
+  showBlock();
+
+  // Out already? Then it's not a pre-save any more.
+  if (today >= released) {
+    const cta = document.getElementById('featured-cta');
+    const tag = document.getElementById('featured-tag');
+    const blurb = document.getElementById('featured-blurb');
+    if (cta) cta.textContent = 'Listen Now';
+    if (tag) tag.textContent = 'Out Now';
+    if (blurb) blurb.textContent = 'Out now on every streaming service.';
+  } else {
+    const when = released.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+    const el = document.getElementById('featured-date');
+    if (el) el.textContent = 'Released ' + when;
+  }
+})();
+
+// ── MAILING LIST ──────────────────────────────────────────────────
+(function mailingList() {
+  const form = document.getElementById('signup-form');
+  if (!form) return;
+  const email = document.getElementById('signup-email');
+  const consent = document.getElementById('signup-consent');
+  const btn = document.getElementById('signup-btn');
+  const msg = document.getElementById('signup-msg');
+
+  const say = (text, ok) => {
+    msg.textContent = text;
+    msg.classList.remove('hidden');
+    msg.classList.toggle('is-ok', !!ok);
+    msg.classList.toggle('is-err', !ok);
+  };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!email.value.trim()) { say('Pop your email address in first.', false); email.focus(); return; }
+    if (!consent.checked)    { say('Tick the box and you\'re in.', false); consent.focus(); return; }
+
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Signing up…';
+
+    try {
+      const body = new FormData();
+      body.append('email', email.value.trim());
+      body.append('consent', consent.checked ? '1' : '0');
+      body.append('source', 'homepage');
+
+      const res = await fetch('subscribe.php', { method: 'POST', body });
+      let data = null;
+      try { data = JSON.parse(await res.text()); } catch { data = null; }
+      if (!data) throw new Error('Something went wrong at our end. Try again in a minute.');
+      if (!res.ok) throw new Error(data.error || 'Could not sign you up.');
+
+      // Deliberately the same message whether they were already on the list
+      // or not — confirming membership to a stranger leaks who is on it.
+      form.querySelector('.signup-row').classList.add('hidden');
+      form.querySelector('.signup-consent').classList.add('hidden');
+      say('You\'re on the list. Talk soon ★', true);
+    } catch (err) {
+      say(err.message, false);
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+})();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shows Admin</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="assets/css/style.css?v=9">
+  <link rel="stylesheet" href="assets/css/style.css?v=10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
   <style>
     .adm { max-width: 900px; margin: 0 auto; padding: 0 32px 120px; }
@@ -51,6 +51,20 @@
     }
     .date-row select:focus, .date-row input:focus { outline: none; border-color: var(--red); }
     @media (max-width: 520px) { .date-row { grid-template-columns: 1fr 1fr; } }
+
+    .subs-scroll { overflow-x: auto; }
+    .subs { width: 100%; border-collapse: collapse; }
+    .subs th, .subs td {
+      text-align: left; padding: 11px 12px; font-size: 12.5px;
+      border-bottom: 1px solid var(--border); color: var(--light-grey);
+      white-space: nowrap;
+    }
+    .subs th {
+      color: var(--white); font-size: 10px; letter-spacing: .16em;
+      text-transform: uppercase; border-bottom-color: var(--grey);
+    }
+    .subs td:first-child { color: var(--white); }
+    .subs-empty { color: var(--grey); padding: 28px 12px; font-size: 13px; }
 
     .adm-card-bad { border-color: var(--red); }
     .toast-ok { color: #4ade80; font-size: 12px; letter-spacing: .08em; }
@@ -118,6 +132,29 @@
 
     <div id="list"></div>
 
+    <!-- ── MAILING LIST ── -->
+    <div style="margin-top:56px;padding-top:32px;border-top:1px solid var(--border)">
+      <div class="adm-bar">
+        <div>
+          <h3 style="font-size:26px;margin-bottom:4px">Mailing List</h3>
+          <span id="subs-count" class="adm-hint">Loading…</span>
+        </div>
+        <div class="adm-actions" style="margin:0">
+          <a id="subs-csv" class="btn btn-outline" href="#" download>Download CSV</a>
+        </div>
+      </div>
+      <div class="subs-scroll">
+        <table class="subs" id="subs-table">
+          <thead><tr><th>Email</th><th>Signed up</th><th>From</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="adm-hint" style="margin-top:12px">
+        Newest first. Addresses are stored on the server outside the website
+        folder, so nobody can reach them from a browser.
+      </p>
+    </div>
+
     <p class="adm-hint" style="margin-top:24px">
       Shows appear on the homepage in date order. Anything already past is hidden
       from visitors automatically, but stays here until you delete it.
@@ -127,7 +164,7 @@
 
 </div>
 
-<script src="assets/js/admin.js?v=9"></script>
+<script src="assets/js/admin.js?v=10"></script>
 
 </body>
 </html>

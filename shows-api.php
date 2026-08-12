@@ -95,8 +95,9 @@ if ($action === 'session') {
 if (!is_admin()) fail('Not signed in.', 401);
 
 /* Every write also carries the token issued at login, so another site
-   can't make your browser post here on your behalf. */
-$token = $_POST['csrf'] ?? '';
+   can't make your browser post here on your behalf. Accepted from the query
+   string too, because the CSV export has to work as a plain download link. */
+$token = $_POST['csrf'] ?? $_GET['csrf'] ?? '';
 if (!hash_equals((string)($_SESSION['csrf'] ?? ''), (string)$token)) {
     fail('Session expired — please sign in again.', 403);
 }
@@ -158,6 +159,38 @@ if ($action === 'save') {
     if ($ok === false) fail('Could not write data/shows.json — check folder permissions on the server.', 500);
 
     echo json_encode(['ok' => true, 'count' => count($clean)]);
+    exit;
+}
+
+/* ---- mailing list ----
+   Lives here rather than in its own file so it reuses the session and CSRF
+   checks above. The addresses themselves are written by subscribe.php into
+   the private log folder, outside the web root. */
+if ($action === 'subs' || $action === 'subs-csv') {
+    require_once __DIR__ . '/smo-log.php';
+    $f = smo_log_dir() . '/subscribers.json';
+    $subs = [];
+    if (file_exists($f)) {
+        $d = json_decode((string)file_get_contents($f), true);
+        if (is_array($d)) $subs = $d;
+    }
+    /* Newest first — the useful order when you're checking who just joined. */
+    $subs = array_reverse($subs);
+
+    if ($action === 'subs') {
+        echo json_encode(['subscribers' => $subs, 'count' => count($subs)]);
+        exit;
+    }
+
+    /* CSV for pasting into Mailchimp or a spreadsheet later. */
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="smo-mailing-list-' . date('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['email', 'signed_up', 'source', 'consent']);
+    foreach ($subs as $s) {
+        fputcsv($out, [$s['email'] ?? '', $s['signedUp'] ?? '', $s['source'] ?? '', $s['consent'] ?? '']);
+    }
+    fclose($out);
     exit;
 }
 
