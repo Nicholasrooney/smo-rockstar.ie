@@ -1,0 +1,398 @@
+/* =====================================================================
+   SMO — LIGHT THEME (preview)
+   ---------------------------------------------------------------------
+   Not a recolour of the dark site. The reference is a screen-printed gig
+   poster: warm paper stock, heavy ink, one red that behaves like a second
+   pass through the press. Same two typefaces as the dark site so it still
+   reads as SMO.
+
+   Standalone on purpose — light.html loads only this file, so nothing here
+   can affect the live site.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* Paper and ink, both warm. Nothing is pure white or pure black — flat
+     #fff under a red this saturated buzzes, and true black reads as digital
+     rather than printed. */
+  --paper:      oklch(0.968 0.008 75);
+  --paper-deep: oklch(0.935 0.012 75);
+  --paper-edge: oklch(0.885 0.014 75);
+  --ink:        oklch(0.215 0.015 45);
+  --ink-soft:   oklch(0.455 0.012 45);
+  --ink-faint:  oklch(0.640 0.010 45);
+  --red:        oklch(0.545 0.205 27);
+  --red-deep:   oklch(0.445 0.175 27);
+
+  --rule: 1px solid oklch(0.855 0.015 75);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* Paper tooth. Much lighter than the dark site's grain — on a pale ground
+   the same opacity would look like dirt. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.03em;
+  line-height: 0.92;
+  font-weight: 400;
+}
+
+a { color: inherit; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+
+/* ── NAV ─────────────────────────────────────────────── */
+.l-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+}
+.l-nav .wrap {
+  height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.l-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.l-logo em { color: var(--red); font-style: normal; }
+
+.l-nav ul { display: flex; gap: 30px; list-style: none; align-items: center; }
+.l-nav ul a {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: color .15s ease-out, border-color .15s ease-out;
+}
+.l-nav ul a:hover { color: var(--ink); border-bottom-color: var(--red); }
+
+.l-nav .shop-link {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 22px;
+  border-bottom: none;
+}
+.l-nav .shop-link:hover { background: var(--red); color: var(--paper); border-bottom-color: transparent; }
+
+/* ── HERO ────────────────────────────────────────────── */
+/* Poster construction: image plate on the left, type block on the right,
+   overlapping. Not a full-bleed photo with centred text. */
+.l-hero { padding: 64px 0 0; }
+
+.l-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0;
+  align-items: end;
+}
+
+.l-plate {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  background: var(--ink);
+}
+.l-plate video, .l-plate img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  /* Push toward a two-ink print rather than a full-colour photo. */
+  filter: grayscale(1) contrast(1.22) brightness(1.04);
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+.l-plate::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  mix-blend-mode: screen;
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+.l-hero-type {
+  padding: 0 0 44px 44px;
+  position: relative;
+  z-index: 2;
+  margin-left: -80px;
+}
+.l-eyebrow {
+  display: inline-block;
+  background: var(--red);
+  color: var(--paper);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  margin-bottom: 20px;
+}
+.l-hero-type h1 {
+  font-size: clamp(96px, 15vw, 210px);
+  line-height: 0.78;
+  letter-spacing: -0.005em;
+}
+.l-hero-type h1 span { color: var(--red); }
+
+.l-hero-sub {
+  margin-top: 22px;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--ink-soft);
+}
+.l-hero-actions { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.l-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 15px 30px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .15s ease-out, color .15s ease-out;
+}
+.l-btn:hover { background: var(--ink); color: var(--paper); }
+.l-btn-solid { background: var(--red); border-color: var(--red); color: var(--paper); }
+.l-btn-solid:hover { background: var(--red-deep); border-color: var(--red-deep); color: var(--paper); }
+
+/* ── TICKER ──────────────────────────────────────────── */
+.l-ticker {
+  margin-top: 72px;
+  background: var(--red);
+  color: var(--paper);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  overflow: hidden;
+  padding: 12px 0;
+  white-space: nowrap;
+}
+.l-ticker-inner { display: inline-block; animation: lTicker 26s linear infinite; }
+.l-ticker span {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  margin-right: 46px;
+}
+@keyframes lTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── SECTIONS ────────────────────────────────────────── */
+.l-section { padding: 96px 0; }
+.l-section + .l-section { border-top: var(--rule); }
+
+.l-head { margin-bottom: 48px; }
+.l-kicker {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red);
+  display: block;
+  margin-bottom: 12px;
+}
+.l-head h2 { font-size: clamp(46px, 7vw, 88px); }
+
+/* ── ABOUT ───────────────────────────────────────────── */
+.l-about { display: grid; grid-template-columns: 1fr 1.05fr; gap: 60px; align-items: start; }
+.l-about-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.l-about-imgs img {
+  width: 100%; display: block;
+  border: 2px solid var(--ink);
+  filter: grayscale(1) contrast(1.15);
+}
+.l-about-imgs img:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; object-fit: cover; }
+.l-about-imgs img:not(:first-child) { aspect-ratio: 1; object-fit: cover; }
+
+.l-about p { max-width: 62ch; margin-bottom: 18px; color: var(--ink-soft); line-height: 1.95; }
+
+/* The dark site puts three big numbers in a row, which is the stat-tile
+   cliché. Printed as a spec line instead — like the small print at the foot
+   of a poster. */
+.l-spec {
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.l-spec b { color: var(--ink); font-weight: 700; }
+
+/* ── SHOWS ───────────────────────────────────────────── */
+/* Ruled listings, the way gigs appear in the back of a music paper. */
+.l-shows { border-top: 2px solid var(--ink); }
+.l-show {
+  display: grid;
+  grid-template-columns: 132px 1fr auto auto;
+  gap: 28px;
+  align-items: center;
+  padding: 24px 8px;
+  border-bottom: var(--rule);
+  position: relative;
+  transition: background .15s ease-out;
+}
+.l-show:hover { background: var(--paper-deep); }
+
+.l-show-date {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  line-height: 0.85;
+  color: var(--red);
+}
+.l-show-date small {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  margin-bottom: 5px;
+}
+.l-show h3 { font-size: 30px; margin-bottom: 4px; }
+.l-show h3 a { text-decoration: none; }
+.l-show h3 a::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.l-show:hover h3 a { color: var(--red); }
+.l-show .where { font-size: 11px; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; }
+.l-show .cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  position: relative; z-index: 2;
+}
+.l-show .go { position: relative; z-index: 2; }
+.l-empty { padding: 52px 8px; color: var(--ink-faint); border-bottom: var(--rule); }
+.l-empty a { color: var(--red); }
+
+/* ── MUSIC ───────────────────────────────────────────── */
+/* A numbered track listing, not four identical cards. */
+.l-releases { border-top: 2px solid var(--ink); }
+.l-release {
+  display: grid;
+  grid-template-columns: 62px 96px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 8px;
+  border-bottom: var(--rule);
+  text-decoration: none;
+  transition: background .15s ease-out;
+}
+.l-release:hover { background: var(--paper-deep); }
+.l-release .num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--paper-edge);
+}
+.l-release:hover .num { color: var(--red); }
+.l-release img {
+  width: 96px; height: 96px; object-fit: cover; display: block;
+  border: 2px solid var(--ink);
+  filter: grayscale(1) contrast(1.15);
+}
+.l-release:hover img { filter: none; }
+.l-release h3 { font-size: 30px; }
+.l-release .meta { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
+.l-release .listen { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--red); }
+
+/* ── MERCH ───────────────────────────────────────────── */
+.l-merch { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.l-merch-img {
+  border: 2px solid var(--ink);
+  background: var(--paper-deep);
+  padding: 30px;
+}
+.l-merch-img img { width: 100%; display: block; }
+.l-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 74px;
+  color: var(--red);
+  line-height: 1;
+  margin: 18px 0 26px;
+}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.l-foot { border-top: 2px solid var(--ink); padding: 46px 0; }
+.l-foot .wrap { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; align-items: center; }
+.l-foot a { color: var(--ink-soft); text-decoration: none; }
+.l-foot a:hover { color: var(--red); }
+.l-foot small { color: var(--ink-faint); font-size: 11px; letter-spacing: 0.1em; }
+
+/* preview strip so this page is never mistaken for the live site */
+.l-flag {
+  background: var(--ink);
+  color: var(--paper);
+  text-align: center;
+  padding: 9px 16px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.l-flag a { color: var(--paper); }
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 940px) {
+  .wrap { padding: 0 24px; }
+  .l-hero-grid { grid-template-columns: 1fr; }
+  .l-hero-type { margin-left: 0; padding: 28px 0 0; }
+  .l-about, .l-merch { grid-template-columns: 1fr; gap: 36px; }
+  .l-show { grid-template-columns: 88px 1fr; gap: 16px; row-gap: 10px; }
+  .l-show .cost { grid-column: 1; font-size: 22px; }
+  .l-show .go { grid-column: 2; justify-self: start; }
+  .l-show-date { font-size: 34px; }
+  .l-release { grid-template-columns: 40px 68px 1fr; }
+  .l-release img { width: 68px; height: 68px; }
+  .l-release .listen { grid-column: 3; }
+  .l-nav ul { gap: 16px; }
+  .l-nav ul li:not(:last-child) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .l-ticker-inner { animation: none; }
+  * { transition: none !important; }
+}

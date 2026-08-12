@@ -168,6 +168,21 @@ needs to control it.
 reduced-motion users — anyone with Windows animation effects off — get no
 transform and no animation at all.
 
+## Light theme preview
+
+`light.html` + `assets/css/light.css` — a standalone preview at
+`/light.html`, noindex, loading none of the dark site's CSS so it can't affect
+anything live. It pulls real gigs from the same API.
+
+Deliberately not a recolour: the dark site inverted would read as a generic
+white SaaS page. The reference is a screen-printed gig poster — warm paper,
+heavy ink, red behaving like a second pass through the press. Same two
+typefaces. The stat row and the four identical release cards were both
+rebuilt (a printed spec line, and a numbered listing) rather than carried
+across, since they're the two most template-looking parts of the dark page.
+
+Contrast verified: body 16:1, secondary 6.7:1, red on paper 5:1.
+
 ## Media
 
 **Hero video** (`assets/video/hero.mp4`) is the beach music-video clip, muted and
