@@ -197,11 +197,12 @@ updateCartBadge();
 // rate server-side from the same region code, so the two can't drift apart.
 const SHIPPING = { IE: 5, UK: 7, EU: 9 };
 
-// Mirrors the freeShipping flag in data/products.json. A cart holding only
-// these ships free, so the €1 test item is charged as exactly €1. Keep this
-// in step with products.json or the page will quote a total Stripe doesn't
-// then charge.
-const FREE_SHIPPING_IDS = new Set(['smo-test-1']);
+// Mirrors the freeShipping flag in data/products.json: a cart holding only
+// these ships free. Empty now the €1 test item is gone, but the mechanism is
+// kept for the next time something needs to ship free. Add an id here AND set
+// freeShipping in products.json — miss one and the page quotes a total Stripe
+// doesn't then charge.
+const FREE_SHIPPING_IDS = new Set([]);
 
 function renderCheckout() {
   const list = document.getElementById('checkout-items');

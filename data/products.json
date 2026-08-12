@@ -16,12 +16,5 @@
     "title": "★ SMO Crowd Tee — Black",
     "priceCents": 2500,
     "sizes": ["S", "M", "L", "XL", "XXL"]
-  },
-  {
-    "id": "smo-test-1",
-    "title": "SMO Test Item",
-    "priceCents": 100,
-    "sizes": [],
-    "freeShipping": true
   }
 ]

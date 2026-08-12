@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shop</title>
   <link rel="canonical" href="https://smo-rockstar.ie/shop.html">
-  <link rel="stylesheet" href="assets/css/style.css?v=8">
+  <link rel="stylesheet" href="assets/css/style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -126,33 +126,6 @@
     </div>
   </div>
 
-  <!-- Product: €1 test item.
-       Here so a real end-to-end payment can be run without spending €25.
-       Ships free (see freeShipping in data/products.json) so the charge is
-       exactly €1. DELETE THIS CARD once testing is done. -->
-  <div class="product-card" style="border:1px dashed var(--border)">
-    <div class="product-card-img">
-      <img src="assets/images/tee-star-black.jpg" alt="SMO test item" loading="lazy">
-    </div>
-    <div class="product-card-body">
-      <h3>Test Item</h3>
-      <p style="color:var(--grey);font-size:12px;margin-bottom:12px">
-        Not a real product — this is here so the band can check the payment
-        system works. Please don't buy it.
-      </p>
-      <div class="product-price">€1</div>
-      <button
-        class="btn btn-outline"
-        style="width:100%;justify-content:center;margin-bottom:12px"
-        data-add-to-cart
-        data-product-id="smo-test-1"
-        data-product-name="SMO Test Item"
-        data-product-price="1"
-        data-product-image="assets/images/tee-star-black.jpg"
-      >Add to Cart</button>
-    </div>
-  </div>
-
   <!-- More coming -->
   <div class="product-card" style="background:transparent;border:1px solid var(--border)">
     <div style="padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;height:100%">
@@ -211,7 +184,7 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=8"></script>
+<script type="module" src="assets/js/main.js?v=9"></script>
 <script>
   // Show cart bar when items in cart
   function updateCartBar() {
@@ -233,7 +206,7 @@
   document.addEventListener('click', () => setTimeout(updateCartBar, 200));
 </script>
 
-<script src="assets/js/cookie-consent.js?v=8" defer></script>
+<script src="assets/js/cookie-consent.js?v=9" defer></script>
 
 </body>
 </html>
