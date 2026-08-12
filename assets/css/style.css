@@ -1169,3 +1169,121 @@ footer {
 
   .modal-box { padding: 28px 24px; }
 }
+
+/* ============================================================
+   CHECKOUT PROMINENCE + COOKIE BANNER CLEARANCE
+   ============================================================ */
+
+/* The cookie banner is fixed to the bottom of the viewport, so before this
+   it sat on top of the "Add to Cart" bar and the "Pay Securely" button —
+   people literally could not click buy until they dismissed it. The banner
+   now publishes its height as --smo-ck-h and the page reserves that space. */
+body.smo-ck-open { padding-bottom: var(--smo-ck-h, 0px); }
+
+/* ---- shop: sticky basket bar ---- */
+/* Moved out of an inline style so it can stack above the cookie banner
+   rather than underneath it. */
+.cart-bar {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: var(--smo-ck-h, 0px);
+  z-index: 600;
+  display: none;                       /* main.js flips this to flex */
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 60px;
+  background: var(--card-bg);
+  border-top: 2px solid var(--red);
+  box-shadow: 0 -12px 40px rgba(0,0,0,.55);
+  transition: bottom .35s cubic-bezier(.16,1,.3,1);
+}
+
+.cart-bar.open { display: flex; }
+
+.cart-bar .cart-bar-summary {
+  font-size: 14px;
+  color: var(--white);
+  letter-spacing: .04em;
+}
+.cart-bar .cart-bar-summary span { color: var(--grey); }
+
+/* ---- the primary buy action ---- */
+/* Bigger, heavier, and it responds when pressed. Transform and opacity only,
+   so nothing reflows mid-click. */
+.btn-buy {
+  font-size: 15px;
+  letter-spacing: .18em;
+  padding: 22px 40px;
+  width: 100%;
+  justify-content: center;
+  position: relative;
+  will-change: transform;
+  transition: transform .18s cubic-bezier(.16,1,.3,1),
+              box-shadow .18s cubic-bezier(.16,1,.3,1),
+              background .18s ease-out;
+  box-shadow: 0 6px 22px rgba(229,35,61,.28);
+}
+.btn-buy:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(229,35,61,.42);
+}
+.btn-buy:active:not(:disabled) {
+  transform: translateY(1px) scale(.985);
+  box-shadow: 0 3px 12px rgba(229,35,61,.3);
+}
+.btn-buy:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+/* Pulse once on click so the press registers even on a slow connection. */
+.btn-buy.fired { animation: buyPulse .5s cubic-bezier(.16,1,.3,1); }
+@keyframes buyPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(229,35,61,.55); }
+  100% { box-shadow: 0 0 0 22px rgba(229,35,61,0); }
+}
+
+/* ---- checkout: give the order summary real weight ---- */
+.checkout-layout { grid-template-columns: 1fr 480px; }
+
+.order-summary {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  padding: 36px 32px;
+}
+.order-summary h2 { font-size: 34px; }
+
+.order-total-row.grand {
+  font-size: 17px;
+  padding-top: 18px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.order-total-row.grand span:last-child {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--red);
+  letter-spacing: .01em;
+}
+
+@media (max-width: 900px) {
+  .checkout-layout { grid-template-columns: 1fr; }
+  .cart-bar { padding: 16px 24px; gap: 14px; }
+  .cart-bar .cart-bar-summary { font-size: 12px; }
+  .btn-buy { padding: 20px 24px; font-size: 14px; }
+}
+
+/* Feedback that doesn't depend on movement: the press darkens the button and
+   the label changes. Matters more than it sounds — anyone with Windows
+   "animation effects" off gets no transform and no pulse, and that setting is
+   common enough that motion alone would leave them wondering if the click
+   registered at all. */
+.btn-buy:active:not(:disabled) { background: var(--red-dark); }
+.btn-buy:disabled { background: var(--red-dark); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-buy, .cart-bar { transition: none; }
+  .btn-buy.fired { animation: none; }
+  .btn-buy:hover:not(:disabled), .btn-buy:active:not(:disabled) { transform: none; }
+  /* Keep a visible resting shadow so the button still reads as raised. */
+  .btn-buy { box-shadow: 0 4px 18px rgba(229,35,61,.3); }
+}

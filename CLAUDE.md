@@ -72,6 +72,15 @@ name in `assets/images/shows/` (git-ignored; they live only on the server).
 
 Editors pick from ~10 stock band photos or upload their own, max 3 per show.
 
+**`data/shows.json` is NOT tracked in git.** It's written on the server by the
+admin; committing it means the next deploy overwrites real gigs with whatever
+is in the repo. It bit once already. `shows-api.php` creates it on first save.
+
+**A show needs a name AND a date.** Without a date the homepage can't place it
+and hides it, which used to happen silently after a cheerful "Saved". The API
+now refuses the whole save and names the offending row, and the editor flags it
+before you press the button.
+
 **Never reintroduce hardcoded fallback gigs.** The old Firebase version fell
 back to two invented shows dated Apr/May 2025, and the live homepage advertised
 them for months after they'd passed. Empty now renders "No dates announced"
@@ -141,6 +150,23 @@ DNS worth knowing (all on Cloudflare):
 Gmail gotcha that cost an hour: sending a test from the same Gmail the address
 forwards to shows nothing in the inbox — Gmail suppresses its own message
 coming back. Check Cloudflare's Activity Log, or test from another account.
+
+## Checkout / cookie banner clearance
+
+The cookie banner is `position: fixed` at the bottom, so it sat on top of the
+basket bar and the Pay button — people could not click buy until they dismissed
+it. `cookie-consent.js` now publishes the banner height as `--smo-ck-h`;
+`body.smo-ck-open` reserves that much padding and `.cart-bar` sits at
+`bottom: var(--smo-ck-h)`. **Anything else fixed to the bottom must do the
+same, or it will cover the buy button again.**
+
+Don't put the cart bar's position back into an inline style — the stylesheet
+needs to control it.
+
+`.btn-buy` is the primary buy action. Note it carries non-motion feedback
+(darker background, label change, disabled state) as well as the pulse, because
+reduced-motion users — anyone with Windows animation effects off — get no
+transform and no animation at all.
 
 ## Media
 

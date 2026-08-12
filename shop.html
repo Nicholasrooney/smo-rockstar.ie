@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMO — Shop</title>
   <link rel="canonical" href="https://smo-rockstar.ie/shop.html">
-  <link rel="stylesheet" href="assets/css/style.css?v=6">
+  <link rel="stylesheet" href="assets/css/style.css?v=7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>★</text></svg>">
 </head>
 <body>
@@ -172,9 +172,9 @@
 </div>
 
 <!-- ── CART PANEL ── -->
-<div id="cart-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);border-top:1px solid var(--border);padding:16px 60px;display:flex;align-items:center;justify-content:space-between;z-index:500">
-  <span id="cart-summary" style="font-size:13px;color:var(--light-grey)"></span>
-  <a href="checkout.html" class="btn btn-primary">Checkout →</a>
+<div id="cart-bar" class="cart-bar">
+  <span id="cart-summary" class="cart-bar-summary"></span>
+  <a href="checkout.html" class="btn btn-primary btn-buy" style="width:auto">Checkout →</a>
 </div>
 
 <!-- ── FOOTER ── -->
@@ -211,7 +211,7 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main.js?v=6"></script>
+<script type="module" src="assets/js/main.js?v=7"></script>
 <script>
   // Show cart bar when items in cart
   function updateCartBar() {
@@ -221,11 +221,11 @@
     if (!bar) return;
     const total = cart.reduce((s, i) => s + i.qty, 0);
     const price = cart.reduce((s, i) => s + i.price * i.qty, 0);
-    if (total > 0) {
-      bar.style.display = 'flex';
-      if (summary) summary.textContent = `${total} item${total>1?'s':''} — €${price.toFixed(2)}`;
-    } else {
-      bar.style.display = 'none';
+    // Toggle a class rather than an inline style, so the stylesheet keeps
+    // control of where the bar sits relative to the cookie banner.
+    bar.classList.toggle('open', total > 0);
+    if (total > 0 && summary) {
+      summary.innerHTML = `<span>${total} item${total > 1 ? 's' : ''} in your basket</span> &nbsp;·&nbsp; €${price.toFixed(2)}`;
     }
   }
   updateCartBar();
@@ -233,7 +233,7 @@
   document.addEventListener('click', () => setTimeout(updateCartBar, 200));
 </script>
 
-<script src="assets/js/cookie-consent.js?v=6" defer></script>
+<script src="assets/js/cookie-consent.js?v=7" defer></script>
 
 </body>
 </html>

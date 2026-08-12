@@ -255,9 +255,17 @@ document.getElementById('pay-btn')?.addEventListener('click', async (e) => {
   if (cart.length === 0) return;
 
   errEl?.classList.add('hidden');
+
+  // Acknowledge the press immediately. Stripe can take a second or two to
+  // hand back a URL, and without this the button just sits there looking
+  // like the click missed.
+  btn.classList.remove('fired');
+  void btn.offsetWidth;                 // restart the animation on repeat clicks
+  btn.classList.add('fired');
+
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'Redirecting…';
+  btn.textContent = 'Taking you to Stripe…';
 
   try {
     const res = await fetch('checkout.php', {
@@ -285,5 +293,6 @@ document.getElementById('pay-btn')?.addEventListener('click', async (e) => {
     }
     btn.disabled = false;
     btn.textContent = original;
+    btn.classList.remove('fired');
   }
 });

@@ -108,7 +108,11 @@ if ($action === 'save') {
     /* Rebuild each row rather than trusting what was posted, so nothing
        unexpected ends up in the file that the homepage then renders. */
     $clean = [];
-    foreach ($incoming as $s) {
+    /* A show with no name or no date used to be dropped here in silence, so
+       the editor saw "Saved" and then nothing on the site. Collect the
+       reasons and refuse the save instead. */
+    $problems = [];
+    foreach ($incoming as $n => $s) {
         $photos = [];
         foreach ((array)($s['photos'] ?? []) as $p) {
             $p = trim((string)$p);
@@ -120,7 +124,13 @@ if ($action === 'save') {
             if (count($photos) >= 3) break;
         }
         $name = trim((string)($s['name'] ?? ''));
-        if ($name === '') continue;                       // a gig with no name is not a gig
+        $date = trim((string)($s['date'] ?? ''));
+        $where = $name !== '' ? '"' . $name . '"' : 'show ' . ($n + 1);
+
+        if ($name === '') { $problems[] = 'Show ' . ($n + 1) . ' has no name.'; continue; }
+        /* No date means the homepage can't place it and silently hides it. */
+        if ($date === '') { $problems[] = $where . ' has no date — add one or delete the show.'; continue; }
+        if (strtotime($date) === false) { $problems[] = $where . ' has a date that isn\'t valid.'; continue; }
 
         $link = trim((string)($s['ticketLink'] ?? ''));
         if ($link !== '' && !preg_match('#^https?://#i', $link)) $link = 'https://' . $link;
@@ -129,12 +139,16 @@ if ($action === 'save') {
             'id'         => preg_replace('/[^a-z0-9-]/i', '', (string)($s['id'] ?? '')) ?: bin2hex(random_bytes(8)),
             'name'       => mb_substr($name, 0, 120),
             'venue'      => mb_substr(trim((string)($s['venue'] ?? '')), 0, 160),
-            'date'       => mb_substr(trim((string)($s['date'] ?? '')), 0, 32),
+            'date'       => mb_substr($date, 0, 32),
             'price'      => mb_substr(trim((string)($s['price'] ?? '')), 0, 16),
             'ticketLink' => mb_substr($link, 0, 400),
             'photos'     => $photos,
         ];
     }
+
+    /* Nothing is written if any row is unusable — a partial save that
+       quietly discards a gig is worse than no save at all. */
+    if ($problems) fail(implode(' ', $problems), 422);
 
     /* Sort by date so the homepage doesn't have to. */
     usort($clean, function ($a, $b) { return strcmp($a['date'], $b['date']); });

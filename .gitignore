@@ -11,6 +11,10 @@ logs/
 assets/images/shows/*
 !assets/images/shows/README.txt
 
+# Live gig data — written by the admin on the server. NOT tracked: a deploy
+# would otherwise overwrite real shows with whatever is committed here.
+data/shows.json
+
 # Original Hostinger zips / reference exports
 *.zip
 

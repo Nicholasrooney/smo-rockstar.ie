@@ -76,9 +76,36 @@
     document.head.appendChild(style);
   }
 
+  /* The banner is fixed to the bottom, so on its own it sits ON TOP of
+     whatever is down there — which on the shop and checkout pages is the
+     button people click to buy something. Publish its height so the page can
+     reserve that space and the basket bar can stack above it. */
+  function reserveSpace(el) {
+    var apply = function () {
+      document.documentElement.style.setProperty('--smo-ck-h', el.offsetHeight + 'px');
+    };
+    apply();
+    document.body.classList.add('smo-ck-open');
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(apply);
+      ro.observe(el);
+      el._ro = ro;
+    }
+    window.addEventListener('resize', apply);
+    el._apply = apply;
+  }
+
+  function releaseSpace(el) {
+    document.body.classList.remove('smo-ck-open');
+    document.documentElement.style.removeProperty('--smo-ck-h');
+    if (el && el._ro) el._ro.disconnect();
+    if (el && el._apply) window.removeEventListener('resize', el._apply);
+  }
+
   function hideBanner() {
     var b = document.getElementById('smo-cookie-banner');
     if (!b) return;
+    releaseSpace(b);
     b.classList.remove('visible');
     setTimeout(function () { if (b && b.parentNode) b.parentNode.removeChild(b); }, 500);
   }
@@ -109,7 +136,10 @@
     document.getElementById('smo-ck-essential').addEventListener('click', function () {
       setCookie(CONSENT_COOKIE, 'essential', CONSENT_DAYS); hideBanner();
     });
-    setTimeout(function () { div.classList.add('visible'); }, 700);
+    setTimeout(function () {
+      div.classList.add('visible');
+      reserveSpace(div);
+    }, 700);
   }
 
   /* Let the footer link re-open the choice: <a href="#" data-cookie-settings>. */

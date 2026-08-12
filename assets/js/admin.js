@@ -126,14 +126,42 @@
     wire();
   }
 
+  /* Why a row won't show up publicly. Returned so the editor can say so
+     up front, instead of the gig vanishing silently after a "Saved". */
+  function publicStatus(s) {
+    if (!String(s.name || '').trim()) return { ok: false, msg: 'Needs a name before it can be saved.' };
+    if (!String(s.date || '').trim()) return { ok: false, msg: 'Needs a date — without one this will not appear on the site.' };
+    var d = new Date(s.date);
+    if (isNaN(d)) return { ok: false, msg: 'That date is not valid.' };
+    var cutoff = new Date(); cutoff.setHours(0, 0, 0, 0);
+    if (d < cutoff) return { ok: true, past: true, msg: 'Already passed — hidden from visitors, still here for you.' };
+    return { ok: true };
+  }
+
+  function flagHtml(st) {
+    if (st.ok && !st.past) return '';
+    return '<p class="' + (st.ok ? 'adm-hint' : 'toast-err') + '" style="margin:0 0 14px">' +
+      (st.ok ? '' : '⚠ ') + esc(st.msg) + '</p>';
+  }
+
+  function refreshFlag(i) {
+    var host = document.querySelector('[data-flag="' + i + '"]');
+    if (!host) return;
+    var st = publicStatus(shows[i]);
+    host.innerHTML = flagHtml(st);
+    host.closest('.adm-card').classList.toggle('adm-card-bad', !st.ok);
+  }
+
   function cardHtml(i, s) {
-    return '<div class="adm-card" data-i="' + i + '">' +
+    var st = publicStatus(s);
+    return '<div class="adm-card' + (st.ok ? '' : ' adm-card-bad') + '" data-i="' + i + '">' +
+      '<div data-flag="' + i + '">' + flagHtml(st) + '</div>' +
       '<div class="adm-row">' +
-        field(i, 'name', 'Show / gig name', s.name, 'Grand Social') +
+        field(i, 'name', 'Show / gig name *', s.name, 'Grand Social') +
         field(i, 'venue', 'Venue & location', s.venue, 'Grand Social, Dublin') +
       '</div>' +
       '<div class="adm-row">' +
-        field(i, 'date', 'Date & time', s.date, '', 'datetime-local') +
+        field(i, 'date', 'Date & time *', s.date, '', 'datetime-local') +
         field(i, 'price', 'Ticket price (€) — blank or 0 = free', s.price, '15') +
       '</div>' +
       field(i, 'ticketLink', 'Ticket link', s.ticketLink, 'https://…') +
@@ -176,6 +204,7 @@
     document.querySelectorAll('[data-f]').forEach(function (el) {
       el.addEventListener('input', function () {
         shows[+el.dataset.i][el.dataset.f] = el.value;
+        refreshFlag(+el.dataset.i);
         dirty();
       });
     });
@@ -242,6 +271,21 @@
   /* ── save ─────────────────────────────────────────────── */
   $('save-btn').addEventListener('click', function () {
     var btn = this;
+
+    /* Same checks the server runs, surfaced before the round trip so the
+       reason lands next to the field that caused it. */
+    var blocking = shows
+      .map(function (s, i) { return { i: i, st: publicStatus(s) }; })
+      .filter(function (x) { return !x.st.ok; });
+    if (blocking.length) {
+      blocking.forEach(function (x) { refreshFlag(x.i); });
+      $('save-msg').innerHTML = '<span class="toast-err">Nothing saved — ' +
+        blocking.length + (blocking.length === 1 ? ' show needs' : ' shows need') +
+        ' fixing above.</span>';
+      document.querySelector('.adm-card-bad').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     btn.disabled = true;
     $('save-msg').innerHTML = '<span class="adm-hint">Saving…</span>';
     post('save', { shows: JSON.stringify(shows) }).then(function (r) {
